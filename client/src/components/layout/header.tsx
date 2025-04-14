@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ userRole = 'owner' }) => {
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center sticky top-0 z-10">
       <div className="flex items-center">
         <Link href="/">
-          <a className="text-xl font-bold text-[#FF5A5F]">CleanSync</a>
+          <span className="text-xl font-bold text-[#FF5A5F] cursor-pointer">CleanSync</span>
         </Link>
       </div>
       
@@ -45,24 +45,24 @@ const Header: React.FC<HeaderProps> = ({ userRole = 'owner' }) => {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/settings">
-                <a className="w-full">Profile Settings</a>
+                <span className="w-full cursor-pointer">Profile Settings</span>
               </Link>
             </DropdownMenuItem>
             {userRole === 'owner' && (
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href="/housekeeper-view">
-                  <a className="w-full">View as Housekeeper</a>
+                  <span className="w-full cursor-pointer">View as Housekeeper</span>
                 </Link>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem>
-              <a href="#" className="w-full">Help & Support</a>
+              <span className="w-full cursor-pointer">Help & Support</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a href="#" className="w-full text-[#FF5A5F]">Logout</a>
+              <span className="w-full cursor-pointer text-[#FF5A5F]">Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

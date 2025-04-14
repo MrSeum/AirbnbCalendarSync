@@ -268,6 +268,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CLEANINGS ENDPOINTS
+  app.get("/api/cleanings", async (req, res) => {
+    try {
+      // Default to today's date if none specified
+      const today = new Date();
+      const cleanings = await getCleaningTasksForDate(today);
+      res.json(cleanings);
+    } catch (err) {
+      console.error("Error fetching today's cleanings:", err);
+      res.status(500).json({ message: "Failed to fetch cleanings" });
+    }
+  });
+
   app.get("/api/cleanings/:date", async (req, res) => {
     try {
       const dateStr = req.params.date;
@@ -286,8 +298,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Housekeeper view - assigned cleanings for today
-  app.get("/api/cleanings/assigned/:date", async (req, res) => {
+  // Housekeeper view - assigned cleanings for specific date
+  app.get("/api/cleanings/assigned/date/:date", async (req, res) => {
     try {
       const dateStr = req.params.date;
       const date = new Date(dateStr);
@@ -314,6 +326,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(assignedCleanings);
     } catch (err) {
       console.error("Error fetching assigned cleanings:", err);
+      res.status(500).json({ message: "Failed to fetch assigned cleanings" });
+    }
+  });
+
+  // Housekeeper view - today's assigned cleanings
+  app.get("/api/cleanings/assigned/today", async (req, res) => {
+    try {
+      // Get any housekeeper (would normally be the authenticated user)
+      const users = await storage.getAllUsers();
+      const housekeeper = users.find(user => user.role === "housekeeper");
+      
+      if (!housekeeper) {
+        return res.json([]);
+      }
+      
+      const today = new Date();
+      const cleanings = await getCleaningTasksForDate(today);
+      
+      // Filter cleanings assigned to this housekeeper
+      const assignedCleanings = cleanings.filter(
+        task => task.housekeeperId === housekeeper.id
+      );
+      
+      res.json(assignedCleanings);
+    } catch (err) {
+      console.error("Error fetching today's assigned cleanings:", err);
       res.status(500).json({ message: "Failed to fetch assigned cleanings" });
     }
   });
