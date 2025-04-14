@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDate } from '@/lib/utils';
 import CalendarGrid from '@/components/ui/calendar-grid';
 import CleaningList from '@/components/ui/cleaning-list';
@@ -7,12 +7,16 @@ import PropertiesList from '@/components/ui/properties-list';
 import HousekeepersList from '@/components/ui/housekeepers-list';
 import { Property, User, Booking, CalendarEvent, CleaningTask } from '@shared/schema';
 import { useLocation } from 'wouter';
+import { apiRequest } from '@/lib/queryClient';
+import { toast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [, navigate] = useLocation();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
+  const [isInitialSync, setIsInitialSync] = useState(true);
+  const queryClient = useQueryClient();
   
   // Fetch data
   const { data: properties } = useQuery<Property[]>({
@@ -31,6 +35,40 @@ const Dashboard = () => {
     queryKey: ['/api/users'],
   });
   
+  // Add mutation for syncing all properties
+  const syncAllPropertiesMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('/api/properties/sync-all', {
+        method: 'POST'
+      });
+    },
+    onSuccess: () => {
+      // Refetch bookings and properties after successful sync
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Calendar Synchronized",
+        description: "All properties' calendars have been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error syncing properties:', error);
+      toast({
+        title: "Sync Failed",
+        description: "Could not sync all properties. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Auto-sync all properties when the page loads for the first time
+  useEffect(() => {
+    if (properties && properties.length > 0 && isInitialSync) {
+      syncAllPropertiesMutation.mutate();
+      setIsInitialSync(false);
+    }
+  }, [properties, isInitialSync]);
+  
   // Count housekeepers
   const housekeepers = users?.filter(user => user.role === 'housekeeper') || [];
   
@@ -44,7 +82,7 @@ const Dashboard = () => {
       end: new Date(booking.checkOut),
       propertyId: booking.propertyId,
       color: property?.color || '#FF5A5F',
-      cleaningStatus: booking.cleaningStatus,
+      cleaningStatus: booking.cleaningStatus || 'pending', // Ensure no null values
       housekeeperId: booking.housekeeperId
     };
   }) || [];

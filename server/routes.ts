@@ -28,6 +28,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch properties" });
     }
   });
+  
+  // Endpoint to sync all property calendars
+  app.post("/api/properties/sync-all", async (req, res) => {
+    try {
+      const propertiesList = await storage.getAllProperties();
+      const results = [];
+      
+      // Sync each property sequentially
+      for (const property of propertiesList) {
+        try {
+          await syncPropertyCalendar(property.id);
+          
+          // Update lastSync timestamp with direct database access
+          // The properties variable here is the table schema, not the API response
+          await db
+            .update(properties)
+            .set({ lastSync: new Date() })
+            .where(eq(properties.id, property.id));
+            
+          results.push({ id: property.id, name: property.name, success: true });
+        } catch (error) {
+          console.error(`Error syncing property ${property.id}:`, error);
+          results.push({ 
+            id: property.id, 
+            name: property.name, 
+            success: false, 
+            error: error instanceof Error ? error.message : String(error) 
+          });
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Synced ${results.filter(r => r.success).length} of ${propertiesList.length} properties`, 
+        results 
+      });
+    } catch (err) {
+      console.error("Error syncing all properties:", err);
+      res.status(500).json({ 
+        message: `Failed to sync properties: ${err instanceof Error ? err.message : String(err)}` 
+      });
+    }
+  });
 
   app.get("/api/properties/:id", async (req, res) => {
     try {
