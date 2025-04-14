@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as ical from 'node-ical';
+import ical from 'node-ical';
 
 interface ICalEvent {
   uid: string;
@@ -41,9 +41,9 @@ export async function parseIcalFeed(url: string): Promise<ICalEvent[]> {
     }
     
     return parsedEvents;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error parsing iCal feed:', error);
-    throw new Error(`Failed to parse iCal feed: ${error.message}`);
+    throw new Error(`Failed to parse iCal feed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
