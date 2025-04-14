@@ -2,9 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { parseIcalFeed } from "./ical-parser";
-import { Property, Booking, CleaningTask, User } from "@shared/schema";
+import { Property, Booking, CleaningTask, User, properties } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware for zod validation errors
@@ -113,18 +115,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/properties/:id/sync", async (req, res) => {
     try {
       const propertyId = parseInt(req.params.id);
-      const property = await storage.getProperty(propertyId);
+      const propertyToSync = await storage.getProperty(propertyId);
       
-      if (!property) {
+      if (!propertyToSync) {
         return res.status(404).json({ message: "Property not found" });
       }
       
       await syncPropertyCalendar(propertyId);
       
-      // Update the lastSync timestamp
-      await storage.updateProperty(propertyId, { 
-        lastSync: new Date() 
-      });
+      // Update the lastSync timestamp with direct database access
+      // Use direct database update to set lastSync since it's not in the validation schema
+      await db
+        .update(properties)
+        .set({ lastSync: new Date() })
+        .where(eq(properties.id, propertyId));
       
       const bookings = await storage.getBookingsByPropertyId(propertyId);
       res.json({ success: true, bookingsCount: bookings.length });
@@ -214,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (err instanceof ZodError) {
         return handleZodError(err, res);
       }
-      res.status(500).json({ message: `Failed to update user: ${err.message}` });
+      res.status(500).json({ message: `Failed to update user: ${err instanceof Error ? err.message : String(err)}` });
     }
   });
 
@@ -392,11 +396,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             propertyColor: property.color,
             checkoutTime: property.checkoutTime,
             checkoutDate: new Date(booking.checkOut),
-            address: property.address,
-            accessCode: property.accessCode,
-            notes: property.notes,
-            status: booking.cleaningStatus,
-            housekeeperId: booking.housekeeperId
+            address: property.address || undefined,
+            accessCode: property.accessCode || undefined,
+            notes: property.notes || undefined,
+            status: booking.cleaningStatus || "pending",
+            housekeeperId: booking.housekeeperId || undefined
           });
         }
       }
@@ -459,10 +463,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
     
-    // Update property lastSync timestamp
-    await storage.updateProperty(propertyId, {
-      lastSync: new Date()
-    });
+    // Update property lastSync timestamp directly
+    await db
+      .update(properties)
+      .set({ lastSync: new Date() })
+      .where(eq(properties.id, propertyId));
   }
 
   async function getCleaningTasksForDate(date: Date): Promise<CleaningTask[]> {
@@ -485,11 +490,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           propertyColor: property.color,
           checkoutTime: property.checkoutTime,
           checkoutDate: new Date(booking.checkOut),
-          address: property.address,
-          accessCode: property.accessCode,
-          notes: property.notes,
-          status: booking.cleaningStatus,
-          housekeeperId: booking.housekeeperId
+          address: property.address || undefined,
+          accessCode: property.accessCode || undefined,
+          notes: property.notes || undefined,
+          status: booking.cleaningStatus || "pending",
+          housekeeperId: booking.housekeeperId || undefined
         });
       }
     }
