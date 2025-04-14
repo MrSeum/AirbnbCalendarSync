@@ -11,31 +11,31 @@ const BottomNavigation: React.FC = () => {
   return (
     <nav className="bg-white border-t border-gray-200 flex justify-around py-2 sticky bottom-0">
       <Link href="/">
-        <a className={`flex flex-col items-center p-2 ${isActive('/')}`}>
+        <div className={`flex flex-col items-center p-2 cursor-pointer ${isActive('/')}`}>
           <i className="fas fa-calendar text-lg"></i>
           <span className="text-xs mt-1">Calendar</span>
-        </a>
+        </div>
       </Link>
       
       <Link href="/properties">
-        <a className={`flex flex-col items-center p-2 ${isActive('/properties')}`}>
+        <div className={`flex flex-col items-center p-2 cursor-pointer ${isActive('/properties')}`}>
           <i className="fas fa-home text-lg"></i>
           <span className="text-xs mt-1">Properties</span>
-        </a>
+        </div>
       </Link>
       
       <Link href="/housekeepers">
-        <a className={`flex flex-col items-center p-2 ${isActive('/housekeepers')}`}>
+        <div className={`flex flex-col items-center p-2 cursor-pointer ${isActive('/housekeepers')}`}>
           <i className="fas fa-broom text-lg"></i>
           <span className="text-xs mt-1">Housekeepers</span>
-        </a>
+        </div>
       </Link>
       
       <Link href="/settings">
-        <a className={`flex flex-col items-center p-2 ${isActive('/settings')}`}>
+        <div className={`flex flex-col items-center p-2 cursor-pointer ${isActive('/settings')}`}>
           <i className="fas fa-cog text-lg"></i>
           <span className="text-xs mt-1">Settings</span>
-        </a>
+        </div>
       </Link>
     </nav>
   );

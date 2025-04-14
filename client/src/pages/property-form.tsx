@@ -70,7 +70,7 @@ const PropertyForm = () => {
         address: property.address || '',
         accessCode: property.accessCode || '',
         defaultHousekeeperId: property.defaultHousekeeperId || undefined,
-        active: property.active,
+        active: property.active === null || property.active === undefined ? true : property.active,
       });
     }
   }, [property, form]);
@@ -224,8 +224,11 @@ const PropertyForm = () => {
                   <FormItem>
                     <FormLabel>Default Housekeeper</FormLabel>
                     <Select 
-                      onValueChange={(value) => form.setValue('defaultHousekeeperId', value ? parseInt(value) : undefined)}
-                      defaultValue={field.value?.toString()}
+                      onValueChange={(value) => {
+                        // If value is "0", set to undefined/null, otherwise parse as int
+                        form.setValue('defaultHousekeeperId', value === "0" ? undefined : parseInt(value));
+                      }}
+                      defaultValue={field.value?.toString() || "0"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -233,7 +236,7 @@ const PropertyForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">No default</SelectItem>
+                        <SelectItem value="0">No default</SelectItem>
                         {housekeeperOptions.map((housekeeper) => (
                           <SelectItem key={housekeeper.id} value={housekeeper.id.toString()}>
                             {housekeeper.fullName}
