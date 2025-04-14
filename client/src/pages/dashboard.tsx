@@ -38,9 +38,18 @@ const Dashboard = () => {
   // Add mutation for syncing all properties
   const syncAllPropertiesMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/properties/sync-all', {
-        method: 'POST'
+      const response = await fetch('/api/properties/sync-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || response.statusText);
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       // Refetch bookings and properties after successful sync
@@ -83,7 +92,7 @@ const Dashboard = () => {
       propertyId: booking.propertyId,
       color: property?.color || '#FF5A5F',
       cleaningStatus: booking.cleaningStatus || 'pending', // Ensure no null values
-      housekeeperId: booking.housekeeperId
+      housekeeperId: booking.housekeeperId || undefined // Convert null to undefined for type compatibility
     };
   }) || [];
   
