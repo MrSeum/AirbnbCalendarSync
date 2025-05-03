@@ -1,7 +1,4 @@
 import { 
-  users, 
-  properties, 
-  bookings, 
   type User, 
   type InsertUser, 
   type Property, 
@@ -12,8 +9,6 @@ import {
   userSchema
 } from "@shared/schema";
 import { z } from "zod";
-import { db } from "./db";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -47,42 +42,51 @@ export interface IStorage {
   deleteBooking(id: number): Promise<boolean>;
 }
 
-export class DatabaseStorage implements IStorage {
+export class MemStorage implements IStorage {
+  private users: User[] = [];
+  private properties: Property[] = [];
+  private bookings: Booking[] = [];
+  private nextUserId = 1;
+  private nextPropertyId = 1;
+  private nextBookingId = 1;
+  
   // USER METHODS
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return this.users.find(user => user.id === id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    return this.users.find(user => user.username === username);
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    return [...this.users];
   }
 
   async createUser(userData: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values({
+    const user: User = {
+      id: this.nextUserId++,
       ...userData,
       cleaningCount: 0
-    }).returning();
+    };
+    this.users.push(user);
     return user;
   }
 
   async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
-    const [updatedUser] = await db
-      .update(users)
-      .set(userData)
-      .where(eq(users.id, id))
-      .returning();
+    const index = this.users.findIndex(u => u.id === id);
+    if (index === -1) return undefined;
+    
+    const user = this.users[index];
+    const updatedUser = { ...user, ...userData };
+    this.users[index] = updatedUser;
     return updatedUser;
   }
 
   async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id));
-    return !!result;
+    const initialLength = this.users.length;
+    this.users = this.users.filter(user => user.id !== id);
+    return initialLength !== this.users.length;
   }
 
   async validateUserData(data: unknown, isUpdate: boolean = false): Promise<InsertUser> {
@@ -92,38 +96,41 @@ export class DatabaseStorage implements IStorage {
 
   // PROPERTY METHODS
   async getProperty(id: number): Promise<Property | undefined> {
-    const [property] = await db.select().from(properties).where(eq(properties.id, id));
-    return property;
+    return this.properties.find(property => property.id === id);
   }
 
   async getAllProperties(): Promise<Property[]> {
-    return await db.select().from(properties);
+    return [...this.properties];
   }
 
   async createProperty(propertyData: InsertProperty): Promise<Property> {
-    const [property] = await db.insert(properties).values({
+    const property: Property = {
+      id: this.nextPropertyId++,
       ...propertyData,
       lastSync: null
-    }).returning();
+    };
+    this.properties.push(property);
     return property;
   }
 
   async updateProperty(id: number, propertyData: Partial<InsertProperty>): Promise<Property | undefined> {
-    const [updatedProperty] = await db
-      .update(properties)
-      .set(propertyData)
-      .where(eq(properties.id, id))
-      .returning();
+    const index = this.properties.findIndex(p => p.id === id);
+    if (index === -1) return undefined;
+    
+    const property = this.properties[index];
+    const updatedProperty = { ...property, ...propertyData };
+    this.properties[index] = updatedProperty;
     return updatedProperty;
   }
 
   async deleteProperty(id: number): Promise<boolean> {
     // Delete all bookings for this property first
-    await db.delete(bookings).where(eq(bookings.propertyId, id));
+    this.bookings = this.bookings.filter(booking => booking.propertyId !== id);
     
     // Then delete the property
-    const result = await db.delete(properties).where(eq(properties.id, id));
-    return !!result;
+    const initialLength = this.properties.length;
+    this.properties = this.properties.filter(property => property.id !== id);
+    return initialLength !== this.properties.length;
   }
 
   async validatePropertyData(data: unknown, isUpdate: boolean = false): Promise<InsertProperty> {
@@ -133,61 +140,50 @@ export class DatabaseStorage implements IStorage {
 
   // BOOKING METHODS
   async getBooking(id: number): Promise<Booking | undefined> {
-    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
-    return booking;
+    return this.bookings.find(booking => booking.id === id);
   }
 
   async getBookingByIcalUID(icalUID: string): Promise<Booking | undefined> {
-    const [booking] = await db.select().from(bookings).where(eq(bookings.icalUID, icalUID));
-    return booking;
+    return this.bookings.find(booking => booking.icalUID === icalUID);
   }
 
   async getAllBookings(): Promise<Booking[]> {
-    return await db.select().from(bookings);
+    return [...this.bookings];
   }
 
   async getBookingsByPropertyId(propertyId: number): Promise<Booking[]> {
-    return await db.select().from(bookings).where(eq(bookings.propertyId, propertyId));
+    return this.bookings.filter(booking => booking.propertyId === propertyId);
   }
 
   async getBookingsByDateRange(startDate: Date, endDate: Date): Promise<Booking[]> {
     // Find bookings that overlap with the given date range
-    return await db
-      .select()
-      .from(bookings)
-      .where(
-        and(
-          gte(bookings.checkOut, startDate),
-          lte(bookings.checkIn, endDate)
-        )
-      );
+    return this.bookings.filter(booking => {
+      return booking.checkOut >= startDate && booking.checkIn <= endDate;
+    });
   }
 
   async getBookingsByCheckoutDate(startDate: Date, endDate: Date): Promise<Booking[]> {
     // Find bookings where the checkout date falls within the given range
-    return await db
-      .select()
-      .from(bookings)
-      .where(
-        and(
-          gte(bookings.checkOut, startDate),
-          lte(bookings.checkOut, endDate)
-        )
-      );
+    return this.bookings.filter(booking => {
+      return booking.checkOut >= startDate && booking.checkOut <= endDate;
+    });
   }
 
   async createBooking(bookingData: InsertBooking): Promise<Booking> {
-    const [booking] = await db.insert(bookings).values(bookingData).returning();
+    const booking: Booking = {
+      id: this.nextBookingId++,
+      ...bookingData
+    };
+    this.bookings.push(booking);
     
     // If a housekeeper is assigned, increment their cleaning count
     if (bookingData.housekeeperId) {
       const housekeeper = await this.getUser(bookingData.housekeeperId);
       if (housekeeper) {
         const currentCount = housekeeper.cleaningCount || 0;
-        await db
-          .update(users)
-          .set({ cleaningCount: currentCount + 1 })
-          .where(eq(users.id, bookingData.housekeeperId));
+        await this.updateUser(housekeeper.id, { 
+          cleaningCount: currentCount + 1 
+        });
       }
     }
     
@@ -207,31 +203,29 @@ export class DatabaseStorage implements IStorage {
       const housekeeper = await this.getUser(bookingData.housekeeperId);
       if (housekeeper) {
         const currentCount = housekeeper.cleaningCount || 0;
-        await db
-          .update(users)
-          .set({ cleaningCount: currentCount + 1 })
-          .where(eq(users.id, bookingData.housekeeperId));
+        await this.updateUser(housekeeper.id, { 
+          cleaningCount: currentCount + 1 
+        });
       }
       
       // Decrement old housekeeper's count if there was one
       if (existingBooking.housekeeperId) {
         const previousHousekeeper = await this.getUser(existingBooking.housekeeperId);
         if (previousHousekeeper && previousHousekeeper.cleaningCount && previousHousekeeper.cleaningCount > 0) {
-          await db
-            .update(users)
-            .set({ cleaningCount: previousHousekeeper.cleaningCount - 1 })
-            .where(eq(users.id, existingBooking.housekeeperId));
+          await this.updateUser(previousHousekeeper.id, {
+            cleaningCount: previousHousekeeper.cleaningCount - 1
+          });
         }
       }
     }
 
     // Update the booking
-    const [updatedBooking] = await db
-      .update(bookings)
-      .set(bookingData)
-      .where(eq(bookings.id, id))
-      .returning();
+    const index = this.bookings.findIndex(b => b.id === id);
+    if (index === -1) return undefined;
     
+    const booking = this.bookings[index];
+    const updatedBooking = { ...booking, ...bookingData };
+    this.bookings[index] = updatedBooking;
     return updatedBooking;
   }
 
@@ -242,18 +236,18 @@ export class DatabaseStorage implements IStorage {
       // Decrement housekeeper's cleaning count
       const housekeeper = await this.getUser(booking.housekeeperId);
       if (housekeeper && housekeeper.cleaningCount && housekeeper.cleaningCount > 0) {
-        await db
-          .update(users)
-          .set({ cleaningCount: housekeeper.cleaningCount - 1 })
-          .where(eq(users.id, booking.housekeeperId));
+        await this.updateUser(housekeeper.id, {
+          cleaningCount: housekeeper.cleaningCount - 1
+        });
       }
     }
     
     // Delete the booking
-    const result = await db.delete(bookings).where(eq(bookings.id, id));
-    return !!result;
+    const initialLength = this.bookings.length;
+    this.bookings = this.bookings.filter(b => b.id !== id);
+    return initialLength !== this.bookings.length;
   }
 }
 
-// Use DatabaseStorage for persistence with PostgreSQL
-export const storage = new DatabaseStorage();
+// Use MemStorage for persistence
+export const storage = new MemStorage();
