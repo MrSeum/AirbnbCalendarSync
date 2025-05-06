@@ -166,14 +166,14 @@ const Housekeepers = () => {
             <div className="flex flex-wrap justify-center gap-2 mt-4">
               <button 
                 onClick={() => handleSendMessage(housekeeper)}
-                className="text-xs px-3 py-1 bg-[#EBEBEB] text-[#484848] rounded-md"
+                className="text-xs px-3 py-1 bg-[#E8EDF4] text-[#3B68B5] rounded-md hover:bg-[#D8E1F1]"
               >
                 <i className="far fa-comment mr-1"></i> Message
               </button>
               
               <button 
                 onClick={() => handleEdit(housekeeper)}
-                className="text-xs px-3 py-1 bg-[#00A699] text-white rounded-md"
+                className="text-xs px-3 py-1 bg-[#3B68B5] text-white rounded-md hover:bg-[#2A4F8F]"
               >
                 Edit Profile
               </button>

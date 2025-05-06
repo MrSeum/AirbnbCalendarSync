@@ -33,12 +33,12 @@ function Router() {
     <div className="flex h-screen bg-[#F0F2F5] font-sans">
       {!isMobile && <Sidebar />}
       
-      <div className="flex flex-col flex-1 ml-0 md:ml-[220px]">
+      <div className="flex flex-col flex-1 ml-0 md:ml-[176px]">
         {/* Header for desktop */}
         {!isMobile && (
-          <header className="bg-[#1E2A3B] text-white border-b border-[#2D3B4E] px-6 py-2.5 flex justify-between items-center sticky top-0 z-10">
+          <header className="bg-[#1E2A3B] text-white border-b border-[#2D3B4E] px-6 py-1.5 flex justify-between items-center sticky top-0 z-10">
             <div>
-              <h1 className="text-xl font-semibold text-white">
+              <h1 className="text-lg font-semibold text-white">
                 {location === "/" && "Dashboard"}
                 {location === "/properties" && "Properties"}
                 {location === "/housekeepers" && "Housekeepers"}

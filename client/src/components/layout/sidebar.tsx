@@ -23,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
   ];
 
   return (
-    <aside className="bg-[#1E2A3B] text-white h-screen w-[220px] flex flex-col fixed left-0 top-0">
+    <aside className="bg-[#1E2A3B] text-white h-screen w-[176px] flex flex-col fixed left-0 top-0">
       <div className="p-4 border-b border-gray-700">
         <Link href="/">
           <div className="flex items-center cursor-pointer">
