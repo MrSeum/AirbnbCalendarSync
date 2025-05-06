@@ -109,10 +109,11 @@ export default function AvailabilityPage() {
         housekeeperId: userId
       };
       
-      await apiRequest('/api/availability', {
+      const response = await apiRequest('/api/availability', {
         method: 'POST',
         body: JSON.stringify(availabilityData)
       });
+      await response.json();
       
       toast({
         title: 'Availability Added',
@@ -141,10 +142,11 @@ export default function AvailabilityPage() {
         approved: false // Default to not approved
       };
       
-      await apiRequest('/api/time-off', {
+      const response = await apiRequest('/api/time-off', {
         method: 'POST',
         body: JSON.stringify(timeOffData)
       });
+      await response.json();
       
       toast({
         title: 'Time Off Requested',
@@ -166,9 +168,10 @@ export default function AvailabilityPage() {
   
   const handleDeleteAvailability = async (id: number) => {
     try {
-      await apiRequest(`/api/availability/${id}`, {
+      const response = await apiRequest(`/api/availability/${id}`, {
         method: 'DELETE'
       });
+      await response.json();
       
       toast({
         title: 'Availability Removed',
@@ -188,9 +191,10 @@ export default function AvailabilityPage() {
   
   const handleDeleteTimeOff = async (id: number) => {
     try {
-      await apiRequest(`/api/time-off/${id}`, {
+      const response = await apiRequest(`/api/time-off/${id}`, {
         method: 'DELETE'
       });
+      await response.json();
       
       toast({
         title: 'Time Off Request Cancelled',
