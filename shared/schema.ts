@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, json, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, json, timestamp, varchar, time } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -43,10 +43,32 @@ export const bookings = pgTable("bookings", {
   icalUID: text("ical_uid").notNull(), // Unique ID from iCal event
 });
 
+// Housekeeper availability schedule
+export const housekeeperAvailability = pgTable("housekeeper_availability", {
+  id: serial("id").primaryKey(),
+  housekeeperId: integer("housekeeper_id").notNull(),
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime: time("start_time").notNull(),
+  endTime: time("end_time").notNull(),
+  maxCleanings: integer("max_cleanings").default(3), // Maximum number of cleanings per day
+});
+
+// Time off requests for housekeepers
+export const timeOffRequests = pgTable("time_off_requests", {
+  id: serial("id").primaryKey(),
+  housekeeperId: integer("housekeeper_id").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  approved: boolean("approved").default(false),
+  reason: text("reason"),
+});
+
 // Create insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, cleaningCount: true });
 export const insertPropertySchema = createInsertSchema(properties).omit({ id: true, lastSync: true });
 export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true });
+export const insertAvailabilitySchema = createInsertSchema(housekeeperAvailability).omit({ id: true });
+export const insertTimeOffSchema = createInsertSchema(timeOffRequests).omit({ id: true });
 
 // Property schema with validation
 export const propertySchema = z.object({
@@ -72,6 +94,24 @@ export const userSchema = z.object({
   rating: z.number().min(1).max(5).optional(),
 });
 
+// Housekeeper availability schema with validation
+export const availabilitySchema = z.object({
+  housekeeperId: z.number(), 
+  dayOfWeek: z.number().min(0).max(6),
+  startTime: z.string(),
+  endTime: z.string(),
+  maxCleanings: z.number().min(1).default(3),
+});
+
+// Time off request schema with validation
+export const timeOffSchema = z.object({
+  housekeeperId: z.number(),
+  startDate: z.string(),
+  endDate: z.string(),
+  reason: z.string().optional(),
+  approved: z.boolean().default(false),
+});
+
 // Define types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -81,6 +121,12 @@ export type InsertProperty = z.infer<typeof insertPropertySchema>;
 
 export type Booking = typeof bookings.$inferSelect;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
+
+export type HousekeeperAvailability = typeof housekeeperAvailability.$inferSelect;
+export type InsertHousekeeperAvailability = z.infer<typeof insertAvailabilitySchema>;
+
+export type TimeOffRequest = typeof timeOffRequests.$inferSelect;
+export type InsertTimeOffRequest = z.infer<typeof insertTimeOffSchema>;
 
 // Calendar view types (for frontend)
 export interface CalendarEvent {

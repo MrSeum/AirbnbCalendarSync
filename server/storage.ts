@@ -5,8 +5,14 @@ import {
   type InsertProperty,
   type Booking,
   type InsertBooking,
+  type HousekeeperAvailability,
+  type InsertHousekeeperAvailability,
+  type TimeOffRequest,
+  type InsertTimeOffRequest,
   propertySchema,
-  userSchema
+  userSchema,
+  availabilitySchema,
+  timeOffSchema
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -40,15 +46,41 @@ export interface IStorage {
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBooking(id: number, bookingData: Partial<InsertBooking>): Promise<Booking | undefined>;
   deleteBooking(id: number): Promise<boolean>;
+  
+  // Housekeeper availability methods
+  getHousekeeperAvailability(id: number): Promise<HousekeeperAvailability | undefined>;
+  getAvailabilitiesByHousekeeper(housekeeperId: number): Promise<HousekeeperAvailability[]>;
+  createAvailability(availability: InsertHousekeeperAvailability): Promise<HousekeeperAvailability>;
+  updateAvailability(id: number, data: Partial<InsertHousekeeperAvailability>): Promise<HousekeeperAvailability | undefined>;
+  deleteAvailability(id: number): Promise<boolean>;
+  validateAvailabilityData(data: unknown, isUpdate?: boolean): Promise<InsertHousekeeperAvailability>;
+  
+  // Time off request methods
+  getTimeOffRequest(id: number): Promise<TimeOffRequest | undefined>;
+  getTimeOffByHousekeeper(housekeeperId: number): Promise<TimeOffRequest[]>;
+  getTimeOffInDateRange(startDate: Date, endDate: Date): Promise<TimeOffRequest[]>;
+  createTimeOff(timeOff: InsertTimeOffRequest): Promise<TimeOffRequest>;
+  updateTimeOff(id: number, data: Partial<InsertTimeOffRequest>): Promise<TimeOffRequest | undefined>;
+  deleteTimeOff(id: number): Promise<boolean>;
+  validateTimeOffData(data: unknown, isUpdate?: boolean): Promise<InsertTimeOffRequest>;
+  
+  // Cleaner assignment methods
+  getAvailableHousekeepersForDate(date: Date): Promise<User[]>;
+  assignHousekeeperToBooking(bookingId: number, housekeeperId: number): Promise<Booking | undefined>;
+  autoAssignHousekeepers(date: Date): Promise<number>; // Returns number of assignments made
 }
 
 export class MemStorage implements IStorage {
   private users: User[] = [];
   private properties: Property[] = [];
   private bookings: Booking[] = [];
+  private availability: HousekeeperAvailability[] = [];
+  private timeOff: TimeOffRequest[] = [];
   private nextUserId = 1;
   private nextPropertyId = 1;
   private nextBookingId = 1;
+  private nextAvailabilityId = 1;
+  private nextTimeOffId = 1;
   
   // USER METHODS
   async getUser(id: number): Promise<User | undefined> {
