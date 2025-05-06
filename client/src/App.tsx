@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,34 +10,107 @@ import HousekeeperForm from "@/pages/housekeeper-form";
 import HousekeeperView from "@/pages/housekeeper-view";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
-import Header from "@/components/layout/header";
-import BottomNavigation from "@/components/layout/bottom-navigation";
+import Sidebar from "@/components/layout/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Bell, Plus } from "lucide-react";
 
 function Router() {
+  const isMobile = useIsMobile();
+  const [location] = useLocation();
+  
+  // Check if we're on a form page
+  const isFormPage = [
+    "/add-property", 
+    "/edit-property", 
+    "/add-housekeeper", 
+    "/edit-housekeeper"
+  ].some(path => location.startsWith(path));
+
   return (
-    <div className="flex flex-col h-screen bg-gray-50 font-circular">
-      <Header />
-      <main className="flex-1 overflow-auto">
-        <Switch>
-          <Route path="/" component={Dashboard} />
-          <Route path="/properties" component={Properties} />
-          <Route path="/add-property" component={PropertyForm} />
-          <Route path="/edit-property/:id" component={PropertyForm} />
-          <Route path="/housekeepers" component={Housekeepers} />
-          <Route path="/add-housekeeper" component={HousekeeperForm} />
-          <Route path="/edit-housekeeper/:id" component={HousekeeperForm} />
-          <Route path="/housekeeper-view" component={HousekeeperView} />
-          <Route path="/settings" component={Settings} />
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-      <BottomNavigation />
-      <div className="fixed right-4 bottom-20">
-        <button 
-          onClick={() => window.location.href = "/add-property"}
-          className="bg-[#FF5A5F] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
-          <i className="fas fa-plus text-lg"></i>
-        </button>
+    <div className="flex h-screen bg-[#F7F9FC] font-sans">
+      {!isMobile && <Sidebar />}
+      
+      <div className="flex flex-col flex-1 ml-0 md:ml-[220px]">
+        {/* Header for desktop */}
+        {!isMobile && (
+          <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-800">
+                {location === "/" && "Dashboard"}
+                {location === "/properties" && "Properties"}
+                {location === "/housekeepers" && "Housekeepers"}
+                {location === "/settings" && "Settings"}
+                {location.startsWith("/add-property") && "Add Property"}
+                {location.startsWith("/edit-property") && "Edit Property"}
+                {location.startsWith("/add-housekeeper") && "Add Housekeeper"}
+                {location.startsWith("/edit-housekeeper") && "Edit Housekeeper"}
+              </h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {location === "/properties" && (
+                <Button 
+                  variant="default" 
+                  className="bg-[#3B82F6] hover:bg-blue-600"
+                  onClick={() => window.location.href = "/add-property"}
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Property
+                </Button>
+              )}
+              
+              {location === "/housekeepers" && (
+                <Button 
+                  variant="default" 
+                  className="bg-[#3B82F6] hover:bg-blue-600"
+                  onClick={() => window.location.href = "/add-housekeeper"}
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Housekeeper
+                </Button>
+              )}
+              
+              <Button variant="ghost" size="icon" className="text-gray-500">
+                <Bell className="h-5 w-5" />
+              </Button>
+              
+              <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white">
+                JS
+              </div>
+            </div>
+          </header>
+        )}
+        
+        <main className="flex-1 overflow-auto p-6">
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/properties" component={Properties} />
+            <Route path="/add-property" component={PropertyForm} />
+            <Route path="/edit-property/:id" component={PropertyForm} />
+            <Route path="/housekeepers" component={Housekeepers} />
+            <Route path="/add-housekeeper" component={HousekeeperForm} />
+            <Route path="/edit-housekeeper/:id" component={HousekeeperForm} />
+            <Route path="/housekeeper-view" component={HousekeeperView} />
+            <Route path="/settings" component={Settings} />
+            <Route component={NotFound} />
+          </Switch>
+        </main>
+        
+        {/* Mobile Add Button */}
+        {isMobile && !isFormPage && (
+          <div className="fixed right-4 bottom-20">
+            <Button
+              variant="default"
+              size="icon"
+              className="bg-[#3B82F6] hover:bg-blue-600 h-12 w-12 rounded-full shadow-lg"
+              onClick={() => {
+                if (location === "/properties") window.location.href = "/add-property";
+                if (location === "/housekeepers") window.location.href = "/add-housekeeper";
+              }}
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
