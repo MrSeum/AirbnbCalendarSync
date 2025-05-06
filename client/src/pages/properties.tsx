@@ -16,9 +16,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getTimeAgo } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Edit, Power, Trash2, Plus } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Properties = () => {
   const [, navigate] = useLocation();
@@ -125,14 +128,31 @@ const Properties = () => {
   
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        <div className="animate-pulse">
-          <div className="h-10 bg-gray-200 rounded-md mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-200 h-48 rounded-md"></div>
-            ))}
-          </div>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">Properties</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <div className="h-40 bg-gray-200">
+                <Skeleton className="h-full w-full" />
+              </div>
+              <CardContent className="p-5">
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-3/4" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
@@ -140,29 +160,23 @@ const Properties = () => {
   
   if (!properties || properties.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#484848]">Properties</h1>
-          <button 
-            onClick={() => navigate('/add-property')}
-            className="bg-[#FF5A5F] text-white px-4 py-2 rounded-md text-sm font-medium"
-          >
-            Add Property
-          </button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">Properties</h1>
         
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-8">
-              <h3 className="text-lg font-semibold mb-2">No Properties Yet</h3>
-              <p className="text-gray-500 mb-4">Add your first property to get started with managing your cleaning schedule</p>
-              <button 
-                onClick={() => navigate('/add-property')}
-                className="bg-[#FF5A5F] text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Add Property
-              </button>
-            </div>
+        <Card className="border-dashed border-2 border-gray-200">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-xl">No Properties Yet</CardTitle>
+            <CardDescription className="text-gray-500">
+              Add your first property to get started with managing your cleaning schedule
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center pb-6">
+            <Button 
+              onClick={() => navigate('/add-property')}
+              className="bg-[#3B82F6] hover:bg-blue-600"
+            >
+              Add Property
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -170,85 +184,91 @@ const Properties = () => {
   }
   
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-[#484848]">Properties</h1>
-        <button 
-          onClick={() => navigate('/add-property')}
-          className="bg-[#FF5A5F] text-white px-4 py-2 rounded-md text-sm font-medium"
-        >
-          Add Property
-        </button>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">Properties</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((property) => (
-          <div key={property.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-            <div className="h-32 relative" style={{ backgroundColor: property.color }}>
-              <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center">
-                <h3 className="text-white font-semibold">{property.name}</h3>
-                <span className="bg-white px-2 py-0.5 rounded text-xs font-medium" style={{ color: property.color }}>
-                  Last sync: {property.lastSync ? getTimeAgo(property.lastSync) : 'Never'}
+          <Card key={property.id} className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow">
+            <div className="h-40 relative" style={{ backgroundColor: property.color }}>
+              <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
+                <h3 className="text-white font-semibold text-lg drop-shadow-md">{property.name}</h3>
+                <span className="bg-white px-2 py-1 rounded-md text-xs font-medium shadow-sm" style={{ color: property.color }}>
+                  {property.lastSync ? getTimeAgo(property.lastSync) : 'Never synced'}
                 </span>
               </div>
             </div>
             
-            <div className="p-4">
-              <div className="grid grid-cols-2 gap-2 mb-4">
+            <CardContent className="p-5">
+              <div className="grid grid-cols-2 gap-4 mb-5">
                 <div>
-                  <p className="text-xs text-[#767676]">Checkout Time</p>
-                  <p className="text-sm font-semibold">{property.checkoutTime}</p>
+                  <p className="text-xs text-gray-500 mb-1">Checkout Time</p>
+                  <p className="text-sm font-medium">{property.checkoutTime}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#767676]">Status</p>
+                  <p className="text-xs text-gray-500 mb-1">Status</p>
                   <Badge 
                     variant="outline" 
-                    className={`${property.active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'} text-xs`}
+                    className={`${property.active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}
                   >
                     {property.active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
                 {property.defaultHousekeeperId && (
                   <div>
-                    <p className="text-xs text-[#767676]">Default Housekeeper</p>
-                    <p className="text-sm font-semibold">Assigned</p>
+                    <p className="text-xs text-gray-500 mb-1">Default Housekeeper</p>
+                    <p className="text-sm font-medium">Assigned</p>
                   </div>
                 )}
                 {property.address && (
                   <div>
-                    <p className="text-xs text-[#767676]">Address</p>
-                    <p className="text-sm font-semibold truncate">{property.address}</p>
+                    <p className="text-xs text-gray-500 mb-1">Address</p>
+                    <p className="text-sm font-medium truncate">{property.address}</p>
                   </div>
                 )}
               </div>
               
               <div className="flex flex-wrap gap-2">
-                <button 
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 text-gray-700 border-gray-300"
                   onClick={() => handleEdit(property)}
-                  className="text-xs px-3 py-1 bg-[#EBEBEB] text-[#484848] rounded-md"
                 >
+                  <Edit className="mr-1 h-3.5 w-3.5" />
                   Edit
-                </button>
-                <button 
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 text-blue-600 border-blue-200 hover:bg-blue-50"
                   onClick={() => handleSync(property)}
-                  className="text-xs px-3 py-1 bg-[#00A699] text-white rounded-md"
                 >
-                  Sync iCal
-                </button>
-                <button 
+                  <RefreshCw className="mr-1 h-3.5 w-3.5" />
+                  Sync
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={`h-8 ${property.active 
+                    ? 'text-orange-600 border-orange-200 hover:bg-orange-50' 
+                    : 'text-green-600 border-green-200 hover:bg-green-50'}`}
                   onClick={() => handleToggleActive(property)}
-                  className={`text-xs px-3 py-1 ${property.active ? 'bg-gray-200 text-gray-600' : 'bg-green-100 text-green-800'} rounded-md`}
                 >
+                  <Power className="mr-1 h-3.5 w-3.5" />
                   {property.active ? 'Deactivate' : 'Activate'}
-                </button>
+                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button 
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 text-red-600 border-red-200 hover:bg-red-50"
                       onClick={() => confirmDelete(property)}
-                      className="text-xs px-3 py-1 bg-red-100 text-red-800 rounded-md ml-auto"
                     >
+                      <Trash2 className="mr-1 h-3.5 w-3.5" />
                       Delete
-                    </button>
+                    </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
@@ -267,8 +287,8 @@ const Properties = () => {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

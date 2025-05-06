@@ -39,17 +39,16 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
         <ul>
           {navItems.map((item) => (
             <li key={item.path}>
-              <Link href={item.path}>
-                <a 
-                  className={cn(
-                    "flex items-center px-4 py-3 text-sm hover:bg-[#2D3B4E] transition-colors",
-                    isActive(item.path) ? "bg-[#2D3B4E] border-l-4 border-[#3B82F6]" : ""
-                  )}
-                >
-                  <i className={`fas fa-${item.icon} w-5 text-center mr-3 ${isActive(item.path) ? 'text-[#3B82F6]' : 'text-gray-400'}`}></i>
-                  <span>{item.label}</span>
-                </a>
-              </Link>
+              <div 
+                onClick={() => window.location.href = item.path}
+                className={cn(
+                  "flex items-center px-4 py-3 text-sm hover:bg-[#2D3B4E] transition-colors cursor-pointer",
+                  isActive(item.path) ? "bg-[#2D3B4E] border-l-4 border-[#3B82F6]" : ""
+                )}
+              >
+                <i className={`fas fa-${item.icon} w-5 text-center mr-3 ${isActive(item.path) ? 'text-[#3B82F6]' : 'text-gray-400'}`}></i>
+                <span>{item.label}</span>
+              </div>
             </li>
           ))}
         </ul>
