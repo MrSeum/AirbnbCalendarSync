@@ -69,7 +69,8 @@ export default function SchedulerPage() {
     queryKey: ['/api/time-off-pending'],
     queryFn: async () => {
       // This is a mock endpoint - in a real app, you'd have an endpoint to fetch only pending requests
-      const allTimeOff = await apiRequest('/api/time-off/all');
+      const response = await apiRequest('/api/time-off/all');
+      const allTimeOff = await response.json();
       return allTimeOff.filter((req: TimeOffRequest) => !req.approved);
     },
     enabled: activeTab === 'time-off'
@@ -78,7 +79,10 @@ export default function SchedulerPage() {
   // Query for cleaning tasks on the selected date
   const tasksQuery = useQuery({
     queryKey: ['/api/cleanings', formatDateForApi(selectedDate)],
-    queryFn: () => apiRequest(`/api/cleanings/${formatDateForApi(selectedDate)}`),
+    queryFn: async () => {
+      const response = await apiRequest(`/api/cleanings/${formatDateForApi(selectedDate)}`);
+      return response.json();
+    },
     enabled: activeTab === 'auto-assign' || activeTab === 'manual-assign'
   });
   
@@ -86,7 +90,8 @@ export default function SchedulerPage() {
   const housekeepersQuery = useQuery({
     queryKey: ['/api/users/housekeepers'],
     queryFn: async () => {
-      const users = await apiRequest('/api/users');
+      const response = await apiRequest('/api/users');
+      const users = await response.json();
       return users.filter((user: User) => user.role === 'housekeeper');
     }
   });
@@ -94,7 +99,8 @@ export default function SchedulerPage() {
   // Query for available housekeepers on selected date
   const fetchAvailableHousekeepers = async () => {
     try {
-      const available = await apiRequest(`/api/available-housekeepers/${formatDateForApi(selectedDate)}`);
+      const response = await apiRequest(`/api/available-housekeepers/${formatDateForApi(selectedDate)}`);
+      const available = await response.json();
       setAvailableHousekeepers(available);
     } catch (err) {
       console.error('Error fetching available housekeepers:', err);
@@ -105,9 +111,10 @@ export default function SchedulerPage() {
   // Auto-assign mutation
   const autoAssignMutation = useMutation({
     mutationFn: async (date: string) => {
-      return apiRequest(`/api/auto-assign/${date}`, {
+      const response = await apiRequest(`/api/auto-assign/${date}`, {
         method: 'POST'
       });
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
@@ -129,10 +136,11 @@ export default function SchedulerPage() {
   // Manual assign mutation
   const manualAssignMutation = useMutation({
     mutationFn: async ({bookingId, housekeeperId}: {bookingId: number, housekeeperId: number}) => {
-      return apiRequest('/api/assign-housekeeper', {
+      const response = await apiRequest('/api/assign-housekeeper', {
         method: 'POST',
         body: JSON.stringify({bookingId, housekeeperId})
       });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -157,10 +165,11 @@ export default function SchedulerPage() {
   // Time off approval mutation
   const approveTimeOffMutation = useMutation({
     mutationFn: async (timeOffId: number) => {
-      return apiRequest(`/api/time-off/${timeOffId}`, {
+      const response = await apiRequest(`/api/time-off/${timeOffId}`, {
         method: 'PATCH',
         body: JSON.stringify({approved: true})
       });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -182,9 +191,10 @@ export default function SchedulerPage() {
   // Time off rejection mutation
   const rejectTimeOffMutation = useMutation({
     mutationFn: async (timeOffId: number) => {
-      return apiRequest(`/api/time-off/${timeOffId}`, {
+      const response = await apiRequest(`/api/time-off/${timeOffId}`, {
         method: 'DELETE'
       });
+      return response.json();
     },
     onSuccess: () => {
       toast({

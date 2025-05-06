@@ -58,19 +58,28 @@ export default function AvailabilityPage() {
   // Query for user data
   const userQuery = useQuery({
     queryKey: ['/api/users', userId],
-    queryFn: () => apiRequest(`/api/users/${userId}`)
+    queryFn: async () => {
+      const response = await apiRequest(`/api/users/${userId}`);
+      return response.json();
+    }
   });
   
   // Query for availability data
   const availabilityQuery = useQuery({
     queryKey: ['/api/availability/housekeeper', userId],
-    queryFn: () => apiRequest(`/api/availability/housekeeper/${userId}`)
+    queryFn: async () => {
+      const response = await apiRequest(`/api/availability/housekeeper/${userId}`);
+      return response.json();
+    }
   });
   
   // Query for time off requests
   const timeOffQuery = useQuery({
     queryKey: ['/api/time-off/housekeeper', userId],
-    queryFn: () => apiRequest(`/api/time-off/housekeeper/${userId}`)
+    queryFn: async () => {
+      const response = await apiRequest(`/api/time-off/housekeeper/${userId}`);
+      return response.json();
+    }
   });
   
   // Initialize forms
