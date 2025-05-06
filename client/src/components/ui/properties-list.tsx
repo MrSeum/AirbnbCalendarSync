@@ -72,7 +72,7 @@ const PropertiesList: React.FC<PropertiesListProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {displayProperties?.map((property) => (
           <div key={property.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-            <div className="h-32 relative" style={{ backgroundColor: property.color }}>
+            <div className="h-24 relative" style={{ backgroundColor: property.color }}>
               <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center">
                 <h3 className="text-white font-semibold">{property.name}</h3>
                 <span className="bg-white px-2 py-0.5 rounded text-xs font-medium" style={{ color: property.color }}>

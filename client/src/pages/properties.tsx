@@ -190,7 +190,7 @@ const Properties = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((property) => (
           <Card key={property.id} className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow">
-            <div className="h-40 relative" style={{ backgroundColor: property.color }}>
+            <div className="h-28 relative" style={{ backgroundColor: property.color }}>
               <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
                 <h3 className="text-white font-semibold text-lg drop-shadow-md">{property.name}</h3>
                 <span className="bg-white px-2 py-1 rounded-md text-xs font-medium shadow-sm" style={{ color: property.color }}>
@@ -266,8 +266,7 @@ const Properties = () => {
                       className="h-8 text-red-600 border-red-200 hover:bg-red-50"
                       onClick={() => confirmDelete(property)}
                     >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                      Delete
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>

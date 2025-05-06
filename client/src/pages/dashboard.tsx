@@ -84,9 +84,19 @@ const Dashboard = () => {
   // Transform bookings to calendar events
   const calendarEvents: CalendarEvent[] = bookings?.map(booking => {
     const property = properties?.find(p => p.id === booking.propertyId);
+    let title = 'Property';
+    
+    // Rename properties for the dashboard display
+    if (property) {
+      if (property.id === 1) title = 'Airbnb';
+      else if (property.id === 2) title = 'Booking';
+      else if (property.id === 3) title = 'Agoda';
+      else title = property.name;
+    }
+    
     return {
       id: booking.id,
-      title: property?.name || 'Property',
+      title: title,
       start: new Date(booking.checkIn),
       end: new Date(booking.checkOut),
       propertyId: booking.propertyId,
