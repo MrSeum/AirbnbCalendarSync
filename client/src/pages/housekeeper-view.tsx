@@ -50,8 +50,16 @@ const HousekeeperView = () => {
             <h2 className="text-lg font-bold">Housekeeper View</h2>
             <p className="text-sm text-[#767676]">Welcome, Maria Lopez</p>
           </div>
-          <div className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-            <i className="fas fa-circle text-xs mr-1"></i> Online
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => window.location.href = '/availability/1'}
+              className="text-sm bg-blue-100 text-blue-800 px-3 py-1.5 rounded-md hover:bg-blue-200 transition-colors"
+            >
+              <i className="fas fa-calendar-alt mr-1"></i> Manage Availability
+            </button>
+            <div className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
+              <i className="fas fa-circle text-xs mr-1"></i> Online
+            </div>
           </div>
         </div>
       </div>

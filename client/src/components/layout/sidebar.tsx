@@ -19,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
     { icon: 'broom', label: 'Housekeepers', path: '/housekeepers' },
     { icon: 'calendar-alt', label: 'Calendar', path: '/calendar' },
     { icon: 'clipboard-list', label: 'Tasks', path: '/tasks' },
+    { icon: 'calendar-check', label: 'Scheduler', path: '/scheduler' },
     { icon: 'cog', label: 'Settings', path: '/settings' },
   ];
 

@@ -11,6 +11,8 @@ import HousekeeperView from "@/pages/housekeeper-view";
 import Calendar from "@/pages/calendar";
 import Tasks from "@/pages/tasks";
 import Settings from "@/pages/settings";
+import Availability from "@/pages/availability";
+import Scheduler from "@/pages/scheduler";
 import NotFound from "@/pages/not-found";
 import Sidebar from "@/components/layout/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -45,6 +47,8 @@ function Router() {
                 {location === "/calendar" && "Calendar"}
                 {location === "/tasks" && "Tasks"}
                 {location === "/settings" && "Settings"}
+                {location === "/scheduler" && "Cleaning Scheduler"}
+                {location.startsWith("/availability") && "Manage Availability"}
                 {location.startsWith("/add-property") && "Add Property"}
                 {location.startsWith("/edit-property") && "Edit Property"}
                 {location.startsWith("/add-housekeeper") && "Add Housekeeper"}
@@ -97,6 +101,8 @@ function Router() {
             <Route path="/calendar" component={Calendar} />
             <Route path="/tasks" component={Tasks} />
             <Route path="/settings" component={Settings} />
+            <Route path="/availability/:id?" component={Availability} />
+            <Route path="/scheduler" component={Scheduler} />
             <Route component={NotFound} />
           </Switch>
         </main>
