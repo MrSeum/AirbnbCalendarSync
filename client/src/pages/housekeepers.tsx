@@ -163,7 +163,7 @@ const Housekeepers = () => {
               <i className="far fa-envelope mr-1"></i> {housekeeper.email}
             </div>
             
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
               <button 
                 onClick={() => handleSendMessage(housekeeper)}
                 className="text-xs px-3 py-1 bg-[#EBEBEB] text-[#484848] rounded-md"
@@ -182,7 +182,7 @@ const Housekeepers = () => {
                 <AlertDialogTrigger asChild>
                   <button 
                     onClick={() => confirmDelete(housekeeper)}
-                    className="text-xs px-3 py-1 bg-red-100 text-red-800 rounded-md ml-auto"
+                    className="text-xs px-3 py-1 bg-red-100 text-red-800 rounded-md"
                   >
                     Delete
                   </button>

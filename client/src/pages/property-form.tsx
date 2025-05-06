@@ -198,7 +198,7 @@ const PropertyForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Checkout Time</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select checkout time" />
@@ -228,7 +228,7 @@ const PropertyForm = () => {
                         // If value is "0", set to undefined/null, otherwise parse as int
                         form.setValue('defaultHousekeeperId', value === "0" ? undefined : parseInt(value));
                       }}
-                      defaultValue={field.value?.toString() || "0"}
+                      value={field.value?.toString() || "0"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -306,7 +306,7 @@ const PropertyForm = () => {
                 </button>
                 <button 
                   type="submit" 
-                  className="px-4 py-2 bg-[#FF5A5F] text-white rounded"
+                  className="px-4 py-2 bg-[#3B68B5] text-white rounded"
                   disabled={mutation.isPending}
                 >
                   {mutation.isPending ? 'Saving...' : isEditMode ? 'Update Property' : 'Add Property'}
