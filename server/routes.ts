@@ -545,6 +545,194 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return cleaningTasks;
   }
 
+  // AVAILABILITY MANAGEMENT ENDPOINTS
+  app.get("/api/availability/housekeeper/:id", async (req, res) => {
+    try {
+      const housekeeperId = parseInt(req.params.id);
+      const availabilities = await storage.getAvailabilitiesByHousekeeper(housekeeperId);
+      res.json(availabilities);
+    } catch (err) {
+      console.error("Error fetching housekeeper availability:", err);
+      res.status(500).json({ message: "Failed to fetch availability" });
+    }
+  });
+  
+  app.post("/api/availability", async (req, res) => {
+    try {
+      const validatedData = await storage.validateAvailabilityData(req.body);
+      const availability = await storage.createAvailability(validatedData);
+      res.status(201).json(availability);
+    } catch (err) {
+      console.error("Error creating availability:", err);
+      if (err instanceof ZodError) {
+        return handleZodError(err, res);
+      }
+      res.status(500).json({ message: `Failed to create availability: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  });
+  
+  app.patch("/api/availability/:id", async (req, res) => {
+    try {
+      const availabilityId = parseInt(req.params.id);
+      const validatedData = await storage.validateAvailabilityData(req.body, true);
+      const availability = await storage.updateAvailability(availabilityId, validatedData);
+      
+      if (!availability) {
+        return res.status(404).json({ message: "Availability not found" });
+      }
+      
+      res.json(availability);
+    } catch (err) {
+      console.error("Error updating availability:", err);
+      if (err instanceof ZodError) {
+        return handleZodError(err, res);
+      }
+      res.status(500).json({ message: `Failed to update availability: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  });
+  
+  app.delete("/api/availability/:id", async (req, res) => {
+    try {
+      const availabilityId = parseInt(req.params.id);
+      const result = await storage.deleteAvailability(availabilityId);
+      
+      if (!result) {
+        return res.status(404).json({ message: "Availability not found" });
+      }
+      
+      res.json({ success: true, message: "Availability deleted successfully" });
+    } catch (err) {
+      console.error("Error deleting availability:", err);
+      res.status(500).json({ message: "Failed to delete availability" });
+    }
+  });
+  
+  // TIME OFF REQUEST ENDPOINTS
+  app.get("/api/time-off/housekeeper/:id", async (req, res) => {
+    try {
+      const housekeeperId = parseInt(req.params.id);
+      const timeOffRequests = await storage.getTimeOffByHousekeeper(housekeeperId);
+      res.json(timeOffRequests);
+    } catch (err) {
+      console.error("Error fetching time off requests:", err);
+      res.status(500).json({ message: "Failed to fetch time off requests" });
+    }
+  });
+  
+  app.post("/api/time-off", async (req, res) => {
+    try {
+      const validatedData = await storage.validateTimeOffData(req.body);
+      const timeOff = await storage.createTimeOff(validatedData);
+      res.status(201).json(timeOff);
+    } catch (err) {
+      console.error("Error creating time off request:", err);
+      if (err instanceof ZodError) {
+        return handleZodError(err, res);
+      }
+      res.status(500).json({ message: `Failed to create time off request: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  });
+  
+  app.patch("/api/time-off/:id", async (req, res) => {
+    try {
+      const timeOffId = parseInt(req.params.id);
+      const validatedData = await storage.validateTimeOffData(req.body, true);
+      const timeOff = await storage.updateTimeOff(timeOffId, validatedData);
+      
+      if (!timeOff) {
+        return res.status(404).json({ message: "Time off request not found" });
+      }
+      
+      res.json(timeOff);
+    } catch (err) {
+      console.error("Error updating time off request:", err);
+      if (err instanceof ZodError) {
+        return handleZodError(err, res);
+      }
+      res.status(500).json({ message: `Failed to update time off request: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  });
+  
+  app.delete("/api/time-off/:id", async (req, res) => {
+    try {
+      const timeOffId = parseInt(req.params.id);
+      const result = await storage.deleteTimeOff(timeOffId);
+      
+      if (!result) {
+        return res.status(404).json({ message: "Time off request not found" });
+      }
+      
+      res.json({ success: true, message: "Time off request deleted successfully" });
+    } catch (err) {
+      console.error("Error deleting time off request:", err);
+      res.status(500).json({ message: "Failed to delete time off request" });
+    }
+  });
+  
+  // AUTO ASSIGNMENT ENDPOINTS
+  app.get("/api/available-housekeepers/:date", async (req, res) => {
+    try {
+      const dateStr = req.params.date;
+      const date = new Date(dateStr);
+      
+      // Validate date
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ message: "Invalid date format" });
+      }
+      
+      const availableHousekeepers = await storage.getAvailableHousekeepersForDate(date);
+      res.json(availableHousekeepers);
+    } catch (err) {
+      console.error("Error fetching available housekeepers:", err);
+      res.status(500).json({ message: "Failed to fetch available housekeepers" });
+    }
+  });
+  
+  // Manually assign a housekeeper to a booking
+  app.post("/api/assign-housekeeper", async (req, res) => {
+    try {
+      const { bookingId, housekeeperId } = req.body;
+      
+      if (!bookingId || !housekeeperId) {
+        return res.status(400).json({ message: "bookingId and housekeeperId are required" });
+      }
+      
+      const booking = await storage.assignHousekeeperToBooking(bookingId, housekeeperId);
+      
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      res.json(booking);
+    } catch (err) {
+      console.error("Error assigning housekeeper:", err);
+      res.status(500).json({ message: "Failed to assign housekeeper" });
+    }
+  });
+  
+  // Auto-assign housekeepers for a specific date
+  app.post("/api/auto-assign/:date", async (req, res) => {
+    try {
+      const dateStr = req.params.date;
+      const date = new Date(dateStr);
+      
+      // Validate date
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ message: "Invalid date format" });
+      }
+      
+      const assignmentsMade = await storage.autoAssignHousekeepers(date);
+      res.json({
+        success: true,
+        assignmentsMade,
+        message: `Successfully assigned ${assignmentsMade} cleaning tasks.`
+      });
+    } catch (err) {
+      console.error("Error auto-assigning housekeepers:", err);
+      res.status(500).json({ message: "Failed to auto-assign housekeepers" });
+    }
+  });
+  
   const httpServer = createServer(app);
   return httpServer;
 }
