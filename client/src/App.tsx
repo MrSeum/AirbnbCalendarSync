@@ -78,7 +78,7 @@ function Router() {
               </Button>
               
               <div className="w-8 h-8 rounded-full bg-[#2D3B4E] flex items-center justify-center text-white">
-                JS
+                GB
               </div>
             </div>
           </header>

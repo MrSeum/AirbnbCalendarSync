@@ -60,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
             <i className="fas fa-user text-sm"></i>
           </div>
           <div className="text-sm">
-            <div className="font-medium">John Smith</div>
+            <div className="font-medium">Gabriel Babin</div>
             <div className="text-gray-400 text-xs">Property Owner</div>
           </div>
         </div>

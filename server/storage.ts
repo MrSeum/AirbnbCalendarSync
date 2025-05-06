@@ -249,5 +249,203 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use MemStorage for persistence
-export const storage = new MemStorage();
+// Implementation of storage using the database
+import { db } from './db';
+import { users, properties, bookings } from '@shared/schema';
+import { eq, and, gte, lte } from 'drizzle-orm';
+
+export class DatabaseStorage implements IStorage {
+  // USER METHODS
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id)).returning({ id: users.id });
+    return result.length > 0;
+  }
+
+  async validateUserData(data: unknown, isUpdate: boolean = false): Promise<InsertUser> {
+    const schema = isUpdate ? userSchema.partial() : userSchema;
+    return schema.parse(data) as InsertUser;
+  }
+
+  // PROPERTY METHODS
+  async getProperty(id: number): Promise<Property | undefined> {
+    const [property] = await db.select().from(properties).where(eq(properties.id, id));
+    return property || undefined;
+  }
+
+  async getAllProperties(): Promise<Property[]> {
+    return await db.select().from(properties);
+  }
+
+  async createProperty(propertyData: InsertProperty): Promise<Property> {
+    const [property] = await db.insert(properties).values(propertyData).returning();
+    return property;
+  }
+
+  async updateProperty(id: number, propertyData: Partial<InsertProperty>): Promise<Property | undefined> {
+    const [property] = await db
+      .update(properties)
+      .set(propertyData)
+      .where(eq(properties.id, id))
+      .returning();
+    return property || undefined;
+  }
+
+  async deleteProperty(id: number): Promise<boolean> {
+    // First, delete all bookings for this property
+    await db.delete(bookings).where(eq(bookings.propertyId, id));
+    
+    // Then delete the property
+    const result = await db.delete(properties).where(eq(properties.id, id)).returning({ id: properties.id });
+    return result.length > 0;
+  }
+
+  async validatePropertyData(data: unknown, isUpdate: boolean = false): Promise<InsertProperty> {
+    const schema = isUpdate ? propertySchema.partial() : propertySchema;
+    return schema.parse(data) as InsertProperty;
+  }
+
+  // BOOKING METHODS
+  async getBooking(id: number): Promise<Booking | undefined> {
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
+    return booking || undefined;
+  }
+
+  async getBookingByIcalUID(icalUID: string): Promise<Booking | undefined> {
+    const [booking] = await db.select().from(bookings).where(eq(bookings.icalUID, icalUID));
+    return booking || undefined;
+  }
+
+  async getAllBookings(): Promise<Booking[]> {
+    return await db.select().from(bookings);
+  }
+
+  async getBookingsByPropertyId(propertyId: number): Promise<Booking[]> {
+    return await db.select().from(bookings).where(eq(bookings.propertyId, propertyId));
+  }
+
+  async getBookingsByDateRange(startDate: Date, endDate: Date): Promise<Booking[]> {
+    // Find bookings that overlap with the given date range
+    return await db.select().from(bookings).where(
+      and(
+        gte(bookings.checkOut, startDate),
+        lte(bookings.checkIn, endDate)
+      )
+    );
+  }
+
+  async getBookingsByCheckoutDate(startDate: Date, endDate: Date): Promise<Booking[]> {
+    // Find bookings where the checkout date falls within the given range
+    return await db.select().from(bookings).where(
+      and(
+        gte(bookings.checkOut, startDate),
+        lte(bookings.checkOut, endDate)
+      )
+    );
+  }
+
+  async createBooking(bookingData: InsertBooking): Promise<Booking> {
+    // Create the booking
+    const [booking] = await db.insert(bookings).values(bookingData).returning();
+    
+    // If a housekeeper is assigned, increment their cleaning count
+    if (bookingData.housekeeperId) {
+      const housekeeper = await this.getUser(bookingData.housekeeperId);
+      if (housekeeper) {
+        const currentCount = housekeeper.cleaningCount || 0;
+        await this.updateUser(housekeeper.id, { 
+          cleaningCount: currentCount + 1 
+        });
+      }
+    }
+    
+    return booking;
+  }
+
+  async updateBooking(id: number, bookingData: Partial<InsertBooking>): Promise<Booking | undefined> {
+    // First, get the existing booking
+    const existingBooking = await this.getBooking(id);
+    if (!existingBooking) {
+      return undefined;
+    }
+
+    // If we're assigning a new housekeeper, update cleaning counts
+    if (bookingData.housekeeperId && bookingData.housekeeperId !== existingBooking.housekeeperId) {
+      // Increment new housekeeper's count
+      const housekeeper = await this.getUser(bookingData.housekeeperId);
+      if (housekeeper) {
+        const currentCount = housekeeper.cleaningCount || 0;
+        await this.updateUser(housekeeper.id, { 
+          cleaningCount: currentCount + 1 
+        });
+      }
+      
+      // Decrement old housekeeper's count if there was one
+      if (existingBooking.housekeeperId) {
+        const previousHousekeeper = await this.getUser(existingBooking.housekeeperId);
+        if (previousHousekeeper && previousHousekeeper.cleaningCount && previousHousekeeper.cleaningCount > 0) {
+          await this.updateUser(previousHousekeeper.id, {
+            cleaningCount: previousHousekeeper.cleaningCount - 1
+          });
+        }
+      }
+    }
+
+    // Update the booking
+    const [updatedBooking] = await db
+      .update(bookings)
+      .set(bookingData)
+      .where(eq(bookings.id, id))
+      .returning();
+      
+    return updatedBooking || undefined;
+  }
+
+  async deleteBooking(id: number): Promise<boolean> {
+    // Get the booking first so we can update housekeeper counts
+    const booking = await this.getBooking(id);
+    if (booking && booking.housekeeperId) {
+      // Decrement housekeeper's cleaning count
+      const housekeeper = await this.getUser(booking.housekeeperId);
+      if (housekeeper && housekeeper.cleaningCount && housekeeper.cleaningCount > 0) {
+        await this.updateUser(housekeeper.id, {
+          cleaningCount: housekeeper.cleaningCount - 1
+        });
+      }
+    }
+    
+    // Delete the booking
+    const result = await db.delete(bookings).where(eq(bookings.id, id)).returning({ id: bookings.id });
+    return result.length > 0;
+  }
+}
+
+// Switch to database storage
+export const storage = new DatabaseStorage();
