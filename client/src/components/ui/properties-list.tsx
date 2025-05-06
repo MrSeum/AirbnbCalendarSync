@@ -45,7 +45,7 @@ const PropertiesList: React.FC<PropertiesListProps> = ({
             <p className="text-gray-500 mb-4">Add your first property to get started</p>
             <a 
               href="/add-property" 
-              className="bg-[#FF5A5F] text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-[#3B68B5] hover:bg-[#2A4F8F] text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Add Property
             </a>

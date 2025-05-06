@@ -283,14 +283,14 @@ const Settings = () => {
                   <button
                     type="button"
                     onClick={handleSyncAllCalendars}
-                    className="px-4 py-2 bg-[#00A699] text-white rounded"
+                    className="px-4 py-2 bg-[#3B68B5] hover:bg-[#2A4F8F] text-white rounded"
                   >
                     Sync All Calendars Now
                   </button>
                   
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#FF5A5F] text-white rounded"
+                    className="px-4 py-2 bg-[#3B68B5] hover:bg-[#2A4F8F] text-white rounded"
                     disabled={settingsMutation.isPending}
                   >
                     {settingsMutation.isPending ? 'Saving...' : 'Save Settings'}
@@ -386,7 +386,7 @@ const Settings = () => {
                 <div className="pt-4 flex justify-end">
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#FF5A5F] text-white rounded"
+                    className="px-4 py-2 bg-[#3B68B5] hover:bg-[#2A4F8F] text-white rounded"
                     disabled={profileMutation.isPending}
                   >
                     {profileMutation.isPending ? 'Updating...' : 'Update Profile'}

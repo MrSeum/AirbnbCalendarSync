@@ -49,7 +49,7 @@ const HousekeepersList: React.FC<HousekeepersListProps> = ({
             <p className="text-gray-500 mb-4">Add your first housekeeper to manage your cleanings</p>
             <a 
               href="/add-housekeeper" 
-              className="bg-[#FF5A5F] text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-[#3B68B5] hover:bg-[#2A4F8F] text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Add Housekeeper
             </a>

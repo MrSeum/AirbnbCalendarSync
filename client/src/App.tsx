@@ -8,6 +8,8 @@ import PropertyForm from "@/pages/property-form";
 import Housekeepers from "@/pages/housekeepers";
 import HousekeeperForm from "@/pages/housekeeper-form";
 import HousekeeperView from "@/pages/housekeeper-view";
+import Calendar from "@/pages/calendar";
+import Tasks from "@/pages/tasks";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import Sidebar from "@/components/layout/sidebar";
@@ -34,12 +36,14 @@ function Router() {
       <div className="flex flex-col flex-1 ml-0 md:ml-[220px]">
         {/* Header for desktop */}
         {!isMobile && (
-          <header className="bg-[#1E2A3B] text-white border-b border-[#2D3B4E] px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+          <header className="bg-[#1E2A3B] text-white border-b border-[#2D3B4E] px-6 py-2.5 flex justify-between items-center sticky top-0 z-10">
             <div>
               <h1 className="text-xl font-semibold text-white">
                 {location === "/" && "Dashboard"}
                 {location === "/properties" && "Properties"}
                 {location === "/housekeepers" && "Housekeepers"}
+                {location === "/calendar" && "Calendar"}
+                {location === "/tasks" && "Tasks"}
                 {location === "/settings" && "Settings"}
                 {location.startsWith("/add-property") && "Add Property"}
                 {location.startsWith("/edit-property") && "Edit Property"}
@@ -90,6 +94,8 @@ function Router() {
             <Route path="/add-housekeeper" component={HousekeeperForm} />
             <Route path="/edit-housekeeper/:id" component={HousekeeperForm} />
             <Route path="/housekeeper-view" component={HousekeeperView} />
+            <Route path="/calendar" component={Calendar} />
+            <Route path="/tasks" component={Tasks} />
             <Route path="/settings" component={Settings} />
             <Route component={NotFound} />
           </Switch>
