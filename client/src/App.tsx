@@ -52,7 +52,7 @@ function Router() {
               {location === "/properties" && (
                 <Button 
                   variant="default" 
-                  className="bg-[#1E2A3B] hover:bg-[#2D3B4E]"
+                  className="bg-[#3B68B5] hover:bg-[#2A4F8F]"
                   onClick={() => window.location.href = "/add-property"}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Property
@@ -62,7 +62,7 @@ function Router() {
               {location === "/housekeepers" && (
                 <Button 
                   variant="default" 
-                  className="bg-[#1E2A3B] hover:bg-[#2D3B4E]"
+                  className="bg-[#3B68B5] hover:bg-[#2A4F8F]"
                   onClick={() => window.location.href = "/add-housekeeper"}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Housekeeper
@@ -101,7 +101,7 @@ function Router() {
             <Button
               variant="default"
               size="icon"
-              className="bg-[#1E2A3B] hover:bg-[#2D3B4E] h-12 w-12 rounded-full shadow-lg"
+              className="bg-[#3B68B5] hover:bg-[#2A4F8F] h-12 w-12 rounded-full shadow-lg"
               onClick={() => {
                 if (location === "/properties") window.location.href = "/add-property";
                 if (location === "/housekeepers") window.location.href = "/add-housekeeper";

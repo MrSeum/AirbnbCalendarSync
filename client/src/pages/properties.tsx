@@ -173,7 +173,7 @@ const Properties = () => {
           <CardContent className="flex justify-center pb-6">
             <Button 
               onClick={() => navigate('/add-property')}
-              className="bg-[#1E2A3B] hover:bg-[#2D3B4E]"
+              className="bg-[#3B68B5] hover:bg-[#2A4F8F]"
             >
               Add Property
             </Button>
@@ -232,7 +232,7 @@ const Properties = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="h-8 text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]"
+                  className="h-8 text-[#3B68B5] border-[#3B68B5] hover:bg-[#E8EDF4]"
                   onClick={() => handleEdit(property)}
                 >
                   <Edit className="mr-1 h-3.5 w-3.5" />
@@ -241,7 +241,7 @@ const Properties = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="h-8 text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]"
+                  className="h-8 text-[#3B68B5] border-[#3B68B5] hover:bg-[#E8EDF4]"
                   onClick={() => handleSync(property)}
                 >
                   <RefreshCw className="mr-1 h-3.5 w-3.5" />
@@ -251,8 +251,8 @@ const Properties = () => {
                   variant="outline" 
                   size="sm" 
                   className={`h-8 ${property.active 
-                    ? 'text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]' 
-                    : 'text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]'}`}
+                    ? 'text-[#3B68B5] border-[#3B68B5] hover:bg-[#E8EDF4]' 
+                    : 'text-[#3B68B5] border-[#3B68B5] hover:bg-[#E8EDF4]'}`}
                   onClick={() => handleToggleActive(property)}
                 >
                   <Power className="mr-1 h-3.5 w-3.5" />
@@ -280,7 +280,7 @@ const Properties = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={executeDelete} className="bg-[#1E2A3B] text-white hover:bg-[#2D3B4E]">
+                      <AlertDialogAction onClick={executeDelete} className="bg-[#3B68B5] text-white hover:bg-[#2A4F8F]">
                         Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
