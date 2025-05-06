@@ -28,15 +28,15 @@ function Router() {
   ].some(path => location.startsWith(path));
 
   return (
-    <div className="flex h-screen bg-[#F7F9FC] font-sans">
+    <div className="flex h-screen bg-[#F0F2F5] font-sans">
       {!isMobile && <Sidebar />}
       
       <div className="flex flex-col flex-1 ml-0 md:ml-[220px]">
         {/* Header for desktop */}
         {!isMobile && (
-          <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+          <header className="bg-[#1E2A3B] text-white border-b border-[#2D3B4E] px-6 py-4 flex justify-between items-center sticky top-0 z-10">
             <div>
-              <h1 className="text-xl font-semibold text-gray-800">
+              <h1 className="text-xl font-semibold text-white">
                 {location === "/" && "Dashboard"}
                 {location === "/properties" && "Properties"}
                 {location === "/housekeepers" && "Housekeepers"}
@@ -52,7 +52,7 @@ function Router() {
               {location === "/properties" && (
                 <Button 
                   variant="default" 
-                  className="bg-[#3B82F6] hover:bg-blue-600"
+                  className="bg-[#1E2A3B] hover:bg-[#2D3B4E]"
                   onClick={() => window.location.href = "/add-property"}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Property
@@ -62,25 +62,25 @@ function Router() {
               {location === "/housekeepers" && (
                 <Button 
                   variant="default" 
-                  className="bg-[#3B82F6] hover:bg-blue-600"
+                  className="bg-[#1E2A3B] hover:bg-[#2D3B4E]"
                   onClick={() => window.location.href = "/add-housekeeper"}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Housekeeper
                 </Button>
               )}
               
-              <Button variant="ghost" size="icon" className="text-gray-500">
+              <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white hover:bg-[#2D3B4E]">
                 <Bell className="h-5 w-5" />
               </Button>
               
-              <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-full bg-[#2D3B4E] flex items-center justify-center text-white">
                 JS
               </div>
             </div>
           </header>
         )}
         
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-[#F0F2F5]">
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/properties" component={Properties} />
@@ -101,7 +101,7 @@ function Router() {
             <Button
               variant="default"
               size="icon"
-              className="bg-[#3B82F6] hover:bg-blue-600 h-12 w-12 rounded-full shadow-lg"
+              className="bg-[#1E2A3B] hover:bg-[#2D3B4E] h-12 w-12 rounded-full shadow-lg"
               onClick={() => {
                 if (location === "/properties") window.location.href = "/add-property";
                 if (location === "/housekeepers") window.location.href = "/add-housekeeper";

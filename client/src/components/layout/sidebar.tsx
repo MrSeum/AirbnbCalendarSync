@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
       <div className="p-4 border-b border-gray-700">
         <Link href="/">
           <div className="flex items-center cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-[#3B82F6] flex items-center justify-center text-white font-bold mr-2">
+            <div className="w-8 h-8 rounded-full bg-[#2D3B4E] flex items-center justify-center text-white font-bold mr-2">
               CS
             </div>
             <span className="text-xl font-semibold">CleanSync</span>
@@ -43,10 +43,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
                 onClick={() => window.location.href = item.path}
                 className={cn(
                   "flex items-center px-4 py-3 text-sm hover:bg-[#2D3B4E] transition-colors cursor-pointer",
-                  isActive(item.path) ? "bg-[#2D3B4E] border-l-4 border-[#3B82F6]" : ""
+                  isActive(item.path) ? "bg-[#2D3B4E] border-l-4 border-[#1E2A3B]" : ""
                 )}
               >
-                <i className={`fas fa-${item.icon} w-5 text-center mr-3 ${isActive(item.path) ? 'text-[#3B82F6]' : 'text-gray-400'}`}></i>
+                <i className={`fas fa-${item.icon} w-5 text-center mr-3 ${isActive(item.path) ? 'text-white' : 'text-gray-400'}`}></i>
                 <span>{item.label}</span>
               </div>
             </li>

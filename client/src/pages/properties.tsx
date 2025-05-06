@@ -173,7 +173,7 @@ const Properties = () => {
           <CardContent className="flex justify-center pb-6">
             <Button 
               onClick={() => navigate('/add-property')}
-              className="bg-[#3B82F6] hover:bg-blue-600"
+              className="bg-[#1E2A3B] hover:bg-[#2D3B4E]"
             >
               Add Property
             </Button>
@@ -232,7 +232,7 @@ const Properties = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="h-8 text-gray-700 border-gray-300"
+                  className="h-8 text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]"
                   onClick={() => handleEdit(property)}
                 >
                   <Edit className="mr-1 h-3.5 w-3.5" />
@@ -241,7 +241,7 @@ const Properties = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="h-8 text-blue-600 border-blue-200 hover:bg-blue-50"
+                  className="h-8 text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]"
                   onClick={() => handleSync(property)}
                 >
                   <RefreshCw className="mr-1 h-3.5 w-3.5" />
@@ -251,8 +251,8 @@ const Properties = () => {
                   variant="outline" 
                   size="sm" 
                   className={`h-8 ${property.active 
-                    ? 'text-orange-600 border-orange-200 hover:bg-orange-50' 
-                    : 'text-green-600 border-green-200 hover:bg-green-50'}`}
+                    ? 'text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]' 
+                    : 'text-[#1E2A3B] border-[#1E2A3B] hover:bg-[#E8EDF4]'}`}
                   onClick={() => handleToggleActive(property)}
                 >
                   <Power className="mr-1 h-3.5 w-3.5" />
@@ -280,7 +280,7 @@ const Properties = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={executeDelete} className="bg-red-600 text-white hover:bg-red-700">
+                      <AlertDialogAction onClick={executeDelete} className="bg-[#1E2A3B] text-white hover:bg-[#2D3B4E]">
                         Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
