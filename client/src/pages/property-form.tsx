@@ -33,6 +33,13 @@ const PropertyForm = () => {
   const { data: property, isLoading: isPropertyLoading } = useQuery<Property>({
     queryKey: ['/api/properties', id], 
     enabled: isEditMode,
+    queryFn: async () => {
+      const response = await fetch(`/api/properties/${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch property data');
+      }
+      return response.json();
+    }
   });
   
   const { data: housekeepers, isLoading: isHousekeepersLoading } = useQuery<User[]>({
@@ -300,13 +307,13 @@ const PropertyForm = () => {
                 <button 
                   type="button" 
                   onClick={() => navigate('/properties')}
-                  className="px-4 py-2 border border-[#767676] text-[#767676] rounded"
+                  className="px-4 py-2 border border-[#E8EDF4] text-[#3B68B5] rounded hover:bg-[#E8EDF4] transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="px-4 py-2 bg-[#3B68B5] text-white rounded"
+                  className="px-4 py-2 bg-[#3B68B5] text-white rounded hover:bg-[#2A4F8F] transition-colors"
                   disabled={mutation.isPending}
                 >
                   {mutation.isPending ? 'Saving...' : isEditMode ? 'Update Property' : 'Add Property'}
