@@ -16,7 +16,6 @@ const Dashboard = () => {
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [isInitialSync, setIsInitialSync] = useState(true);
-  const [showAllCleanings, setShowAllCleanings] = useState(false);
   const queryClient = useQueryClient();
   
   // Fetch data
@@ -110,7 +109,6 @@ const Dashboard = () => {
   // Handle date selection in the calendar
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    setShowAllCleanings(false); // Reset to limited view when date changes
   };
   
   // Handle month change in the calendar
@@ -176,9 +174,9 @@ const Dashboard = () => {
       {/* Today's Cleanings Section */}
       <CleaningList 
         date={selectedDate} 
-        limit={showAllCleanings ? undefined : 2}
-        showAll={showAllCleanings}
-        onViewAll={() => setShowAllCleanings(true)}
+        limit={undefined}
+        showAll={true}
+        onViewAll={() => {}}
       />
       
       {/* Properties Section */}
