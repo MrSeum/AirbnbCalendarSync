@@ -9,19 +9,21 @@ interface CleaningListProps {
   limit?: number;
   onViewAll?: () => void;
   onViewDetails?: (task: CleaningTask) => void;
+  showAll?: boolean;
 }
 
 const CleaningList: React.FC<CleaningListProps> = ({
   date = new Date(),
   limit,
   onViewAll,
-  onViewDetails
+  onViewDetails,
+  showAll = false
 }) => {
   const { data: cleanings, isLoading } = useQuery<CleaningTask[]>({
     queryKey: ['/api/cleanings', formatDate(date, 'yyyy-MM-dd')],
   });
 
-  const displayCleanings = limit ? cleanings?.slice(0, limit) : cleanings;
+  const displayCleanings = (limit && !showAll) ? cleanings?.slice(0, limit) : cleanings;
 
   if (isLoading) {
     return (
@@ -66,13 +68,18 @@ const CleaningList: React.FC<CleaningListProps> = ({
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-[#484848]">{formatDate(date) === formatDate(new Date()) ? "Today's" : formatDate(date)} Cleanings</h2>
-        {onViewAll && (
+        {onViewAll && limit && !showAll && cleanings && cleanings.length > limit && (
           <button 
             onClick={onViewAll}
             className="text-[#00A699] text-sm font-medium"
           >
-            View All
+            View All ({cleanings.length})
           </button>
+        )}
+        {showAll && cleanings && cleanings.length > 0 && (
+          <span className="text-sm text-[#767676]">
+            Showing all {cleanings.length} cleanings
+          </span>
         )}
       </div>
       
