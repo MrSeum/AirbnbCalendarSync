@@ -761,12 +761,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
         };
         
+        // Clean property name to remove any time references
+        const cleanPropertyName = (property?.name || 'Unknown Property')
+          .replace(/\d{1,2}:\d{2}\s*(AM|PM|am|pm)/g, '') // Remove time patterns
+          .replace(/\d{1,2}am|\d{1,2}pm/gi, '') // Remove short time patterns
+          .trim();
+        
         icalContent.push(
           'BEGIN:VEVENT',
           `UID:checkout-${booking.id}@property-management.com`,
           `DTSTART:${formatDate(startDate)}`,
           `DTEND:${formatDate(endDate)}`,
-          `SUMMARY:${property?.name || 'Unknown Property'} - Checkout`,
+          `SUMMARY:${cleanPropertyName} - Checkout`,
           `DESCRIPTION:Property checkout for ${booking.guestName || 'Guest'}`,
           `LOCATION:${property?.address || ''}`,
           'END:VEVENT'
