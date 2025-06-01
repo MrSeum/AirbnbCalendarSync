@@ -28,12 +28,8 @@ const Dashboard = () => {
   });
   
   const selectedDateStr = formatDate(selectedDate, 'yyyy-MM-dd');
-  const { data: cleaningToday, isLoading: isLoadingCleanings } = useQuery({
-    queryKey: ['/api/cleanings', selectedDateStr],
-    queryFn: async () => {
-      const response = await apiRequest(`/api/cleanings/${selectedDateStr}`);
-      return await response.json() as CleaningTask[];
-    },
+  const { data: cleaningToday, isLoading: isLoadingCleanings } = useQuery<CleaningTask[]>({
+    queryKey: [`/api/cleanings/${selectedDateStr}`],
   });
   
   const { data: users } = useQuery<User[]>({

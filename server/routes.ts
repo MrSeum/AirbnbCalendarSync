@@ -733,6 +733,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // iCal export endpoint
+  app.get('/api/calendar/export.ics', async (req, res) => {
+    try {
+      const bookings = await storage.getAllBookings();
+      const properties = await storage.getAllProperties();
+      
+      // Create iCal content
+      let icalContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Airbnb Property Management//Checkout Calendar//EN',
+        'METHOD:PUBLISH',
+        'X-WR-CALNAME:Property Checkouts',
+        'X-WR-CALDESC:Checkout dates for all properties'
+      ];
+      
+      bookings.forEach(booking => {
+        const property = properties.find(p => p.id === booking.propertyId);
+        const checkoutDate = new Date(booking.checkOut);
+        const startDate = new Date(checkoutDate);
+        startDate.setHours(11, 0, 0, 0); // 11:00 AM checkout
+        const endDate = new Date(startDate);
+        endDate.setHours(12, 0, 0, 0); // 1 hour duration
+        
+        const formatDate = (date: Date) => {
+          return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        };
+        
+        icalContent.push(
+          'BEGIN:VEVENT',
+          `UID:checkout-${booking.id}@property-management.com`,
+          `DTSTART:${formatDate(startDate)}`,
+          `DTEND:${formatDate(endDate)}`,
+          `SUMMARY:Checkout - ${property?.name || 'Unknown Property'}`,
+          `DESCRIPTION:Property checkout for ${booking.guestName || 'Guest'}`,
+          `LOCATION:${property?.address || ''}`,
+          'END:VEVENT'
+        );
+      });
+      
+      icalContent.push('END:VCALENDAR');
+      
+      res.setHeader('Content-Type', 'text/calendar');
+      res.setHeader('Content-Disposition', 'attachment; filename="checkout-calendar.ics"');
+      res.send(icalContent.join('\r\n'));
+    } catch (error) {
+      console.error('Error generating iCal:', error);
+      res.status(500).json({ error: 'Failed to generate calendar' });
+    }
+  });
+  
   const httpServer = createServer(app);
   return httpServer;
 }
