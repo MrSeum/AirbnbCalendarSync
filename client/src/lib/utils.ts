@@ -24,7 +24,7 @@ export function formatDate(date: string | Date, formatString: string = "MMM d, y
   }
   
   try {
-    const zonedDate = utcToZonedTime(date, timezone);
+    const zonedDate = toZonedTime(date, timezone);
     return format(zonedDate, formatString);
   } catch (e) {
     console.error("Error formatting date object:", e);
