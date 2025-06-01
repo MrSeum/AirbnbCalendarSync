@@ -279,6 +279,29 @@ const Settings = () => {
                   />
                 </div>
                 
+                <Separator />
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">Export Calendar</h3>
+                    <p className="text-sm text-[#767676]">Export checkout calendar to external calendar applications</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const icalUrl = `${window.location.origin}/api/calendar/export.ics`;
+                      navigator.clipboard.writeText(icalUrl);
+                      toast({
+                        title: "iCal URL Copied",
+                        description: "The calendar URL has been copied to your clipboard. Add this URL to your Gmail or other calendar app.",
+                      });
+                    }}
+                    className="px-4 py-2 bg-[#00A699] hover:bg-[#008B7A] text-white rounded text-sm"
+                  >
+                    Copy iCal URL
+                  </button>
+                </div>
+                
                 <div className="pt-4 flex justify-between">
                   <button
                     type="button"

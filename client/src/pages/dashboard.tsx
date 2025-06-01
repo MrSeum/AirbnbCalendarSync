@@ -27,8 +27,13 @@ const Dashboard = () => {
     queryKey: ['/api/bookings', `${calendarYear}-${calendarMonth}`],
   });
   
-  const { data: cleaningToday } = useQuery<CleaningTask[]>({
-    queryKey: ['/api/cleanings', formatDate(selectedDate, 'yyyy-MM-dd')],
+  const selectedDateStr = formatDate(selectedDate, 'yyyy-MM-dd');
+  const { data: cleaningToday, isLoading: isLoadingCleanings } = useQuery({
+    queryKey: ['/api/cleanings', selectedDateStr],
+    queryFn: async () => {
+      const response = await apiRequest(`/api/cleanings/${selectedDateStr}`);
+      return await response.json() as CleaningTask[];
+    },
   });
   
   const { data: users } = useQuery<User[]>({
@@ -184,7 +189,15 @@ const Dashboard = () => {
           )}
         </div>
         
-        {!cleaningToday || cleaningToday.length === 0 ? (
+        {isLoadingCleanings ? (
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-gray-200 h-32 rounded-md"></div>
+              ))}
+            </div>
+          </div>
+        ) : !cleaningToday || cleaningToday.length === 0 ? (
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <div className="text-center py-4">
               <p className="text-gray-500">No cleanings scheduled for {formatDate(selectedDate)}</p>
