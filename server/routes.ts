@@ -758,7 +758,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         endDate.setHours(12, 0, 0, 0); // 1 hour duration
         
         const formatDate = (date: Date) => {
-          return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+          // Convert to GMT+7 timezone
+          const gmt7Date = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+          return gmt7Date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
         };
         
         // Create event title without any time information

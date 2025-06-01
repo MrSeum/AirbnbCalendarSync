@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format, parseISO, formatDistance, addDays } from "date-fns";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -9,9 +10,13 @@ export function cn(...inputs: ClassValue[]) {
 export function formatDate(date: string | Date, formatString: string = "MMM d, yyyy"): string {
   if (!date) return "";
   
+  const timezone = 'Asia/Bangkok'; // GMT+7
+  
   if (typeof date === "string") {
     try {
-      return format(parseISO(date), formatString);
+      const parsedDate = parseISO(date);
+      const zonedDate = toZonedTime(parsedDate, timezone);
+      return format(zonedDate, formatString);
     } catch (e) {
       console.error("Error formatting date string:", e);
       return "";
@@ -19,7 +24,8 @@ export function formatDate(date: string | Date, formatString: string = "MMM d, y
   }
   
   try {
-    return format(date, formatString);
+    const zonedDate = utcToZonedTime(date, timezone);
+    return format(zonedDate, formatString);
   } catch (e) {
     console.error("Error formatting date object:", e);
     return "";
