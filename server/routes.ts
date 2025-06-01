@@ -766,7 +766,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `UID:checkout-${booking.id}@property-management.com`,
           `DTSTART:${formatDate(startDate)}`,
           `DTEND:${formatDate(endDate)}`,
-          `SUMMARY:Checkout - ${property?.name || 'Unknown Property'}`,
+          `SUMMARY:${property?.name || 'Unknown Property'} - Checkout`,
           `DESCRIPTION:Property checkout for ${booking.guestName || 'Guest'}`,
           `LOCATION:${property?.address || ''}`,
           'END:VEVENT'
