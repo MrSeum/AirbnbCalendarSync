@@ -159,19 +159,18 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ events, onDateClick, onMont
       
       <div className="p-4">
         <div className="text-sm font-medium mb-2">Properties:</div>
-        <div className="flex flex-wrap gap-2">
-          {/* This will be populated dynamically from the properties */}
+        <div className="flex flex-wrap gap-4">
           <div className="flex items-center">
-            <span className="booking-dot bg-[#FF5A5F] inline-block w-2 h-2 rounded-full"></span>
-            <span className="text-sm ml-1">Beach House</span>
+            <span className="booking-dot bg-red-500 inline-block w-3 h-3 rounded-full"></span>
+            <span className="text-sm ml-2">Soho</span>
           </div>
           <div className="flex items-center">
-            <span className="booking-dot bg-[#FC642D] inline-block w-2 h-2 rounded-full"></span>
-            <span className="text-sm ml-1">Downtown Loft</span>
+            <span className="booking-dot bg-green-500 inline-block w-3 h-3 rounded-full"></span>
+            <span className="text-sm ml-2">Thao</span>
           </div>
           <div className="flex items-center">
-            <span className="booking-dot bg-[#00A699] inline-block w-2 h-2 rounded-full"></span>
-            <span className="text-sm ml-1">Mountain Cabin</span>
+            <span className="booking-dot bg-blue-500 inline-block w-3 h-3 rounded-full"></span>
+            <span className="text-sm ml-2">D1mension</span>
           </div>
         </div>
       </div>

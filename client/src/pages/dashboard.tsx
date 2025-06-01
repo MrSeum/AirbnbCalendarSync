@@ -28,7 +28,7 @@ const Dashboard = () => {
   });
   
   const { data: cleaningToday } = useQuery<CleaningTask[]>({
-    queryKey: ['/api/cleanings', formatDate(new Date(), 'yyyy-MM-dd')],
+    queryKey: ['/api/cleanings', formatDate(selectedDate, 'yyyy-MM-dd')],
   });
   
   const { data: users } = useQuery<User[]>({
@@ -174,8 +174,8 @@ const Dashboard = () => {
       
       {/* Today's Cleanings Section */}
       <CleaningList 
-        date={new Date()} 
-        limit={2}
+        date={selectedDate} 
+        limit={undefined}
         onViewAll={() => {}}
       />
       

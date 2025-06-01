@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-reac
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   
   // Fetch data
   const { data: properties } = useQuery<Property[]>({
@@ -175,12 +175,31 @@ const Calendar = () => {
         </div>
       </div>
       
+      {/* Properties Legend */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div className="text-sm font-medium mb-2">Properties:</div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+            <span className="text-sm">Soho</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+            <span className="text-sm">Thao</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+            <span className="text-sm">D1mension</span>
+          </div>
+        </div>
+      </div>
+
       {/* Selected day tasks */}
       {selectedDate && (
         <div>
           <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
             <CalendarIcon className="mr-2 h-5 w-5 text-[#3B68B5]" />
-            Cleanings for {formatDate(selectedDate)}
+            {formatDate(selectedDate) === formatDate(new Date()) ? "Today's Cleanings" : `Cleanings for ${formatDate(selectedDate)}`}
           </h2>
           
           {isLoadingTasks ? (
@@ -199,7 +218,7 @@ const Calendar = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4 max-h-96 overflow-y-auto">
               {cleaningTasks.map(task => (
                 <Card key={task.id} className="border-l-4" style={{ borderLeftColor: task.propertyColor }}>
                   <CardContent className="p-4">
