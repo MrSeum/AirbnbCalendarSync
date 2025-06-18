@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { generateCalendarDays, getMonthName } from '@/lib/utils';
+import { generateCalendarDays, getMonthName, formatDate } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { Property } from '@shared/schema';
 
 interface CalendarEvent {
   id: number;
@@ -19,9 +27,52 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ events, onDateClick, onMont
   // Get current date info
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarDays, setCalendarDays] = useState<Array<{day: number, currentMonth: boolean}>>([]);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
   
   // Map events to days
   const [eventsByDay, setEventsByDay] = useState<{[key: string]: CalendarEvent[]}>({});
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Fetch properties for the dropdown
+  const { data: properties } = useQuery<Property[]>({
+    queryKey: ['/api/properties'],
+  });
+
+  // Mutation for adding manual checkout
+  const addCheckoutMutation = useMutation({
+    mutationFn: async ({ propertyId, checkoutDate }: { propertyId: number, checkoutDate: string }) => {
+      const bookingData = {
+        propertyId,
+        guestName: 'Manual Entry',
+        checkIn: checkoutDate, // Same day checkin for manual entries
+        checkOut: checkoutDate,
+        cleaningStatus: 'pending'
+      };
+      const response = await apiRequest('POST', '/api/bookings', bookingData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Checkout Added",
+        description: "Manual checkout has been added successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      setIsAddDialogOpen(false);
+      setSelectedPropertyId('');
+      setSelectedDate(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add checkout: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
   
   useEffect(() => {
     const month = currentDate.getMonth();
@@ -68,6 +119,28 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ events, onDateClick, onMont
     
     onDateClick(clickedDate);
   };
+
+  const handleAddCheckout = (day: number, currentMonth: boolean) => {
+    if (!currentMonth) return;
+    
+    const clickedDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
+    
+    setSelectedDate(clickedDate);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleSubmitCheckout = () => {
+    if (!selectedDate || !selectedPropertyId) return;
+    
+    const propertyId = parseInt(selectedPropertyId);
+    const checkoutDate = formatDate(selectedDate, 'yyyy-MM-dd');
+    
+    addCheckoutMutation.mutate({ propertyId, checkoutDate });
+  };
   
   // Check if a date has events
   const getEventsForDay = (day: number, currentMonth: boolean): CalendarEvent[] => {
@@ -92,7 +165,63 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ events, onDateClick, onMont
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h2 className="text-lg font-bold text-[#484848]">Checkout Calendar</h2>
+        <div className="flex items-center space-x-3">
+          <h2 className="text-lg font-bold text-[#484848]">Checkout Calendar</h2>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                className="h-8 w-8 p-0 bg-[#00A699] hover:bg-[#008B7A] text-white"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add Manual Checkout</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {selectedDate && (
+                  <div className="text-sm text-gray-600">
+                    Date: {formatDate(selectedDate, 'MMM d, yyyy')}
+                  </div>
+                )}
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Property</label>
+                  <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a property..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {properties?.map((property) => (
+                        <SelectItem key={property.id} value={property.id.toString()}>
+                          {property.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsAddDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSubmitCheckout}
+                    disabled={!selectedPropertyId || addCheckoutMutation.isPending}
+                    className="bg-[#00A699] hover:bg-[#008B7A] text-white"
+                  >
+                    {addCheckoutMutation.isPending ? 'Adding...' : 'Add Checkout'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
         <div className="flex items-center space-x-2">
           <button 
             onClick={handlePrevMonth}
@@ -130,15 +259,34 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ events, onDateClick, onMont
           return (
             <div 
               key={index}
-              onClick={() => handleDateClick(day.day, day.currentMonth)}
               className={`
-                aspect-w-1 aspect-h-1 p-1 text-center relative 
+                aspect-w-1 aspect-h-1 p-1 text-center relative group
                 ${day.currentMonth ? '' : 'text-gray-400'}
                 ${today ? 'bg-gray-100 rounded-lg border-2 border-[#FF5A5F] font-bold' : ''}
                 ${!day.currentMonth ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50'}
               `}
             >
-              <div className="calendar-cell">{day.day}</div>
+              <div 
+                onClick={() => handleDateClick(day.day, day.currentMonth)}
+                className="calendar-cell w-full h-full flex items-start justify-center pt-1"
+              >
+                {day.day}
+              </div>
+              
+              {/* Add button - visible on hover for current month days */}
+              {day.currentMonth && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddCheckout(day.day, day.currentMonth);
+                  }}
+                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[#00A699] hover:bg-[#008B7A] text-white rounded-full w-4 h-4 flex items-center justify-center"
+                  title="Add checkout"
+                >
+                  <Plus className="w-2 h-2" />
+                </button>
+              )}
+              
               {dayEvents.length > 0 && (
                 <div className="absolute bottom-1 left-0 right-0 flex justify-center">
                   {dayEvents.map((event, eIdx) => (
