@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { generateCalendarDays, getMonthName, formatDate } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -165,79 +165,71 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ events, onDateClick, onMont
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <div className="flex items-center space-x-3">
-          <h2 className="text-lg font-bold text-[#484848]">Checkout Calendar</h2>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                className="h-8 w-8 p-0 bg-[#00A699] hover:bg-[#008B7A] text-white"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add Manual Checkout</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                {selectedDate && (
-                  <div className="text-sm text-gray-600">
-                    Date: {formatDate(selectedDate, 'MMM d, yyyy')}
-                  </div>
-                )}
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Property</label>
-                  <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a property..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {properties?.map((property) => (
-                        <SelectItem key={property.id} value={property.id.toString()}>
-                          {property.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleSubmitCheckout}
-                    disabled={!selectedPropertyId || addCheckoutMutation.isPending}
-                    className="bg-[#00A699] hover:bg-[#008B7A] text-white"
-                  >
-                    {addCheckoutMutation.isPending ? 'Adding...' : 'Add Checkout'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <h2 className="text-lg font-bold text-[#484848]">Checkout Calendar</h2>
         <div className="flex items-center space-x-2">
           <button 
             onClick={handlePrevMonth}
-            className="p-2 hover:bg-gray-100 rounded">
-            <i className="fas fa-chevron-left text-[#767676]"></i>
+            className="p-2 hover:bg-gray-100 rounded transition-colors">
+            <ChevronLeft className="h-4 w-4 text-[#767676]" />
           </button>
-          <h3 className="text-md font-semibold">
+          <h3 className="text-md font-semibold min-w-[140px] text-center">
             {getMonthName(currentDate.getMonth())} {currentDate.getFullYear()}
           </h3>
           <button 
             onClick={handleNextMonth}
-            className="p-2 hover:bg-gray-100 rounded">
-            <i className="fas fa-chevron-right text-[#767676]"></i>
+            className="p-2 hover:bg-gray-100 rounded transition-colors">
+            <ChevronRight className="h-4 w-4 text-[#767676]" />
           </button>
         </div>
       </div>
+      
+      {/* Hidden dialog for manual checkout - still accessible via hover buttons */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Manual Checkout</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {selectedDate && (
+              <div className="text-sm text-gray-600">
+                Date: {formatDate(selectedDate, 'MMM d, yyyy')}
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Property</label>
+              <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a property..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {properties?.map((property) => (
+                    <SelectItem key={property.id} value={property.id.toString()}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmitCheckout}
+                disabled={!selectedPropertyId || addCheckoutMutation.isPending}
+                className="bg-[#00A699] hover:bg-[#008B7A] text-white"
+              >
+                {addCheckoutMutation.isPending ? 'Adding...' : 'Add Checkout'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* Calendar Header */}
       <div className="grid grid-cols-7 text-center text-sm font-medium p-4 pb-2">

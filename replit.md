@@ -17,6 +17,10 @@ A comprehensive property management application for Airbnb hosts to streamline c
 - D1mension properties: Blue (#4169E1)
 
 ## Recent Changes
+- **2025-06-29**: Updated calendar navigation interface
+  - Removed "+" button from calendar header for cleaner design
+  - Added left/right arrow navigation for month browsing
+  - Maintained hover "+" buttons on individual date cells for manual entry
 - **2025-06-18**: Added manual checkout creation functionality
   - Implemented "+" button in calendar header and individual date cells
   - Created modal dialog with property dropdown selection
