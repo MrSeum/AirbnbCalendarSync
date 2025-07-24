@@ -1,8 +1,4 @@
 {
-  "scripts": {
-    "start": "node server/index.js",
-    "build": "npm run build:frontend && npm run build:server"
-}
   "name": "rest-express",
   "version": "1.0.0",
   "type": "module",
